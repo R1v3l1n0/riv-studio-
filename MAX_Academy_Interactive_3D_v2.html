@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>MAX Academy — Interactive Automotive 3D</title>
+<style>
+:root{
+  --green:#327751;--green2:#49a975;--cyan:#38bdf8;--amber:#f59e0b;--red:#ef4444;
+  --bg:#07090b;--panel:#0e1216;--panel2:#151b20;--panel3:#1b232a;--line:rgba(255,255,255,.09);
+  --text:#eef4f7;--muted:#8f9aa5;--dim:#5e6872;--shadow:0 18px 45px rgba(0,0,0,.42);
+}
+*{box-sizing:border-box}html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;overflow:hidden}
+button,input{font:inherit}.app{height:100%;display:flex;flex-direction:column;min-width:0}.topbar{height:58px;display:grid;grid-template-columns:minmax(220px,1fr) minmax(280px,460px) minmax(220px,1fr);align-items:center;gap:14px;padding:0 14px;background:linear-gradient(180deg,#11161a,#0d1114);border-bottom:1px solid var(--line);z-index:30}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}.logo{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-weight:900;background:linear-gradient(145deg,var(--green2),#163a27);border:1px solid rgba(120,255,175,.35);box-shadow:0 0 24px rgba(50,119,81,.28)}.brand-text{min-width:0}.brand-title{font-size:14px;font-weight:800;letter-spacing:.8px}.brand-sub{font-size:10px;color:var(--muted);letter-spacing:.9px;margin-top:2px}.search-wrap{position:relative}.search{width:100%;height:38px;border:1px solid var(--line);border-radius:10px;background:#0a0f13;color:var(--text);padding:0 72px 0 38px;outline:none;transition:.2s}.search:focus{border-color:rgba(56,189,248,.55);box-shadow:0 0 0 3px rgba(56,189,248,.08)}.search-icon{position:absolute;left:13px;top:10px;color:var(--muted);font-size:14px}.kbd{position:absolute;right:10px;top:9px;color:var(--dim);font-size:10px;border:1px solid var(--line);padding:3px 6px;border-radius:5px}.status{text-align:right;min-width:0}.status-main{font-size:11px;font-weight:700;color:#cde9d9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.status-sub{font-size:10px;color:var(--muted);margin-top:2px}.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green2);box-shadow:0 0 10px var(--green2);margin-right:6px}
+.search-results{position:absolute;top:46px;left:0;right:0;background:#0b1116;border:1px solid rgba(56,189,248,.35);border-radius:12px;box-shadow:var(--shadow);max-height:420px;overflow:auto;display:none;z-index:90}.search-results.open{display:block}.result{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.05);cursor:pointer}.result:hover,.result.sel{background:rgba(56,189,248,.1)}.result-name{font-size:12px;font-weight:700}.result-meta{font-size:10px;color:var(--muted);margin-top:3px}.result mark{background:rgba(245,158,11,.25);color:#ffd06b;border-radius:3px;padding:0 2px}.no-result{padding:20px;text-align:center;color:var(--muted);font-size:12px}
+.workspace{flex:1;display:grid;grid-template-columns:245px minmax(0,1fr) 360px;min-height:0}.left,.right{background:var(--panel);min-height:0}.left{border-right:1px solid var(--line);display:flex;flex-direction:column}.right{border-left:1px solid var(--line);overflow:auto}.side-head{height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-bottom:1px solid var(--line);font-size:11px;font-weight:800;letter-spacing:.8px;color:#c4ced6}.sys-list{list-style:none;padding:7px;margin:0;overflow:auto}.sys{display:grid;grid-template-columns:28px 1fr auto;align-items:center;gap:7px;padding:8px 9px;border-radius:8px;color:var(--muted);cursor:pointer;border:1px solid transparent;margin-bottom:3px;transition:.16s}.sys:hover{background:rgba(255,255,255,.04);color:#fff}.sys.active{color:#fff;background:linear-gradient(90deg,rgba(50,119,81,.3),rgba(50,119,81,.08));border-color:rgba(73,169,117,.22)}.sys-num{font:700 10px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--dim)}.sys.active .sys-num{color:var(--green2)}.sys-name{font-size:11px;line-height:1.25}.sys-count{font-size:9px;color:var(--dim);background:rgba(255,255,255,.04);padding:2px 5px;border-radius:999px}
+.viewer{position:relative;min-width:0;min-height:0;display:flex;flex-direction:column;background:radial-gradient(circle at 50% 35%,#1c252b 0%,#0b0f12 55%,#07090b 100%)}#canvas-wrap{position:relative;flex:1;min-height:0;overflow:hidden}#canvas-wrap canvas{display:block;width:100%;height:100%}.vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at center,transparent 48%,rgba(0,0,0,.28) 100%)}.hud{position:absolute;left:14px;right:14px;top:12px;display:flex;justify-content:space-between;gap:10px;pointer-events:none;z-index:10}.hud-card{pointer-events:auto;background:rgba(10,14,17,.84);border:1px solid var(--line);backdrop-filter:blur(10px);border-radius:10px;padding:8px 10px;box-shadow:0 8px 20px rgba(0,0,0,.18)}.hud-title{font-size:12px;font-weight:800}.hud-sub{font-size:9px;color:var(--cyan);letter-spacing:.7px;margin-top:2px}.camset{display:flex;gap:4px}.cam-btn{border:1px solid transparent;background:rgba(255,255,255,.04);color:var(--muted);border-radius:7px;padding:6px 8px;font-size:10px;cursor:pointer}.cam-btn:hover,.cam-btn.active{color:#fff;background:rgba(50,119,81,.25);border-color:rgba(73,169,117,.35)}
+.help{position:absolute;left:14px;bottom:78px;font-size:10px;color:var(--muted);background:rgba(6,9,11,.72);border:1px solid var(--line);border-radius:8px;padding:7px 9px;z-index:8}.flowbox{position:absolute;right:14px;bottom:78px;max-width:min(560px,70%);background:rgba(7,11,14,.82);border:1px solid rgba(73,169,117,.26);border-radius:10px;padding:8px 10px;z-index:8;display:none;backdrop-filter:blur(8px)}.flowbox.show{display:block}.flow-title{font-size:9px;color:var(--green2);font-weight:800;letter-spacing:.8px;margin-bottom:5px}.flow{display:flex;align-items:center;flex-wrap:wrap;gap:5px}.flow span{font-size:10px;background:rgba(255,255,255,.05);border:1px solid var(--line);padding:4px 7px;border-radius:7px}.flow b{color:var(--cyan);font-size:10px}.tooltip{position:absolute;display:none;z-index:25;background:#0a1014;border:1px solid rgba(56,189,248,.35);border-radius:8px;padding:6px 8px;font-size:10px;box-shadow:var(--shadow);pointer-events:none;max-width:220px}.tooltip.show{display:block}.label-layer{position:absolute;inset:0;pointer-events:none;z-index:7}.part-label{position:absolute;transform:translate(-50%,-50%);font-size:9px;color:#eef6fa;background:rgba(8,13,16,.84);border:1px solid rgba(73,169,117,.45);border-radius:6px;padding:3px 5px;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,.22);opacity:0;transition:opacity .12s}.part-label.show{opacity:1}.loading{position:absolute;inset:0;display:none;place-items:center;background:rgba(4,7,9,.65);z-index:50}.loading.show{display:grid}.load-card{padding:16px 18px;border-radius:12px;background:#0c1216;border:1px solid var(--line);font-size:12px;color:#c8d4db}.webgl-fallback{position:absolute;inset:20px;display:none;place-items:center;text-align:center;border:1px dashed rgba(239,68,68,.45);border-radius:14px;background:#0b0f12;color:#d2dce2;padding:30px;z-index:60}.webgl-fallback.show{display:grid}
+.explode-panel{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);width:min(520px,calc(100% - 28px));z-index:12;background:rgba(9,13,16,.9);border:1px solid rgba(73,169,117,.35);border-radius:11px;padding:8px 12px;display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;backdrop-filter:blur(10px)}.exp-label{font-size:9px;color:var(--muted);white-space:nowrap}.exp-val{font:800 10px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--green2);white-space:nowrap}.range{appearance:none;width:100%;height:5px;border-radius:999px;background:linear-gradient(90deg,var(--green2) 0%,rgba(255,255,255,.1) 0%);outline:none}.range::-webkit-slider-thumb{appearance:none;width:16px;height:16px;border-radius:50%;background:#d7f4e4;border:3px solid var(--green);box-shadow:0 0 12px rgba(73,169,117,.35);cursor:pointer}.range::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:#d7f4e4;border:3px solid var(--green);cursor:pointer}
+.controls{height:58px;background:#0d1114;border-top:1px solid var(--line);display:flex;align-items:center;gap:6px;padding:8px 10px;overflow-x:auto;z-index:15}.ctrl{height:38px;flex:0 0 auto;border:1px solid var(--line);background:rgba(255,255,255,.035);color:#c7d2d9;border-radius:8px;padding:0 10px;display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:800;letter-spacing:.15px;cursor:pointer;transition:.15s}.ctrl:hover{background:rgba(255,255,255,.075);color:#fff}.ctrl.active{background:var(--green);border-color:var(--green2);color:#fff;box-shadow:0 0 14px rgba(50,119,81,.3)}.ctrl.blue.active{background:#0369a1;border-color:var(--cyan)}.ctrl.amber.active{background:#92400e;border-color:var(--amber)}.ctrl-icon{font-size:13px}.sep{width:1px;height:24px;background:var(--line);flex:0 0 auto;margin:0 2px}
+.right-head{position:sticky;top:0;z-index:5;background:rgba(12,16,20,.94);backdrop-filter:blur(10px);padding:12px 14px;border-bottom:1px solid var(--line)}.eyebrow{font-size:9px;color:var(--green2);font-weight:800;letter-spacing:.9px}.part-title{font-size:17px;font-weight:850;margin:4px 0 2px;line-height:1.1}.part-system{font-size:10px;color:var(--muted)}.badge{display:inline-block;font-size:8px;color:#bfe8d0;border:1px solid rgba(73,169,117,.32);background:rgba(50,119,81,.13);border-radius:999px;padding:3px 6px;margin-top:6px}.right-body{padding:10px 12px 24px}.card{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 11px;margin-bottom:8px}.card-title{font-size:9px;font-weight:850;letter-spacing:.7px;color:#dce5ea;text-transform:uppercase;margin-bottom:5px}.card p{font-size:11px;line-height:1.5;color:#9da9b2;margin:0}.related{display:flex;flex-direction:column;gap:5px}.rel{display:flex;justify-content:space-between;align-items:center;gap:8px;border:1px solid rgba(56,189,248,.22);background:rgba(56,189,248,.04);border-radius:8px;padding:7px 8px;cursor:pointer}.rel:hover{background:rgba(56,189,248,.1)}.rel-main{min-width:0}.rel-name{font-size:10px;font-weight:750;color:#e7f3f9}.rel-meta{font-size:8px;color:#7dc8ed;margin-top:2px}.rel-go{font-size:8px;color:var(--cyan);white-space:nowrap}.sym{font-size:10px;color:#f7c66c;background:rgba(245,158,11,.08);border-left:2px solid var(--amber);border-radius:0 6px 6px 0;padding:5px 7px;margin:4px 0}.system-note{font-size:9px;color:#8aa6b5;padding:8px 10px;border:1px dashed rgba(56,189,248,.25);border-radius:8px;background:rgba(56,189,248,.03);margin:8px 12px 0}.mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}.mini{background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.05);border-radius:7px;padding:7px}.mini-k{font-size:8px;color:var(--muted)}.mini-v{font-size:10px;font-weight:750;margin-top:2px;color:#e9f1f5}.toast{position:absolute;top:72px;left:50%;transform:translateX(-50%) translateY(-10px);opacity:0;pointer-events:none;background:#0b1216;border:1px solid rgba(73,169,117,.32);border-radius:9px;padding:8px 11px;font-size:10px;color:#dceae2;z-index:100;transition:.2s}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media(max-width:1180px){.workspace{grid-template-columns:205px minmax(0,1fr) 320px}.topbar{grid-template-columns:220px 1fr 220px}.sys-name{font-size:10px}.right{font-size:95%}}
+@media(max-width:900px){.topbar{grid-template-columns:1fr 1.25fr}.status{display:none}.workspace{grid-template-columns:190px minmax(0,1fr)}.right{position:absolute;right:0;top:58px;bottom:58px;width:min(360px,88vw);transform:translateX(100%);transition:.2s;z-index:40;box-shadow:var(--shadow)}.right.mobile-open{transform:translateX(0)}.help{display:none}.flowbox{max-width:calc(100% - 28px);left:14px;right:14px}.mobile-info{display:inline-flex!important}}
+@media(max-width:640px){.topbar{height:104px;grid-template-columns:1fr;grid-template-rows:44px 44px;gap:2px;padding:7px 10px}.brand{grid-row:1}.search-wrap{grid-row:2}.workspace{grid-template-columns:1fr}.left{position:absolute;left:0;top:104px;bottom:58px;width:min(260px,84vw);transform:translateX(-100%);transition:.2s;z-index:45;box-shadow:var(--shadow)}.left.mobile-open{transform:translateX(0)}.hud{left:8px;right:8px;top:8px}.hud-card:first-child{max-width:58%}.camset{overflow-x:auto;max-width:42vw}.cam-btn{padding:5px 6px}.controls{height:58px}.right{top:104px}.explode-panel{bottom:8px}.menu-mobile{display:inline-flex!important}.brand-sub{display:none}}
+.menu-mobile,.mobile-info{display:none}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="topbar">
+    <div class="brand"><div class="logo">M</div><div class="brand-text"><div class="brand-title">MAX ACADEMY</div><div class="brand-sub">INTERACTIVE AUTOMOTIVE DIGITAL TWIN • EDUKASI 3D</div></div></div>
+    <div class="search-wrap" id="search-wrap"><span class="search-icon">⌕</span><input id="search" class="search" autocomplete="off" placeholder="Cari sparepart / sistem..."/><span class="kbd">Ctrl K</span><div id="search-results" class="search-results"></div></div>
+    <div class="status"><div class="status-main"><span class="dot"></span><span id="status-main">READY</span></div><div class="status-sub" id="status-sub">Model edukasi konseptual 3D — bukan CAD pabrikan</div></div>
+  </header>
+
+  <div class="workspace">
+    <aside class="left" id="left-panel"><div class="side-head"><span>SISTEM KENDARAAN</span><span style="color:var(--green2)">14</span></div><ul class="sys-list" id="system-list"></ul></aside>
+
+    <main class="viewer">
+      <div id="canvas-wrap">
+        <div class="hud"><div class="hud-card"><div id="hud-title" class="hud-title">MESIN & KOMPONEN DALAM</div><div id="hud-sub" class="hud-sub">INTERACTIVE ASSEMBLY</div></div><div class="hud-card camset"><button class="cam-btn active" data-view="iso">ISO</button><button class="cam-btn" data-view="front">DEPAN</button><button class="cam-btn" data-view="top">ATAS</button><button class="cam-btn" data-view="side">SAMPING</button></div></div>
+        <div id="label-layer" class="label-layer"></div>
+        <div id="tooltip" class="tooltip"></div>
+        <div class="vignette"></div>
+        <div class="help">Drag: putar • Scroll: zoom • Klik: pilih komponen • Shift+Drag: pan</div>
+        <div id="flowbox" class="flowbox"><div class="flow-title">HOW IT WORKS</div><div id="flow" class="flow"></div></div>
+        <div id="loading" class="loading"><div class="load-card">Menyiapkan visual 3D…</div></div>
+        <div id="fallback" class="webgl-fallback"><div><h3>3D viewer belum dapat dimuat</h3><p>File HTML ini menggunakan Three.js. Pastikan koneksi internet tersedia saat pertama kali membuka file, lalu muat ulang halaman.</p></div></div>
+        <div class="explode-panel"><span class="exp-label">ASSEMBLED</span><input id="explode-slider" class="range" type="range" min="0" max="100" value="0"/><span id="explode-val" class="exp-val">0%</span></div>
+        <div id="toast" class="toast"></div>
+      </div>
+      <div class="controls">
+        <button id="btn-menu" class="ctrl menu-mobile"><span class="ctrl-icon">☰</span> SISTEM</button>
+        <button id="btn-info" class="ctrl mobile-info"><span class="ctrl-icon">ⓘ</span> INFO</button>
+        <button id="btn-reset-cam" class="ctrl"><span class="ctrl-icon">⌂</span> RESET CAMERA</button><span class="sep"></span>
+        <button id="btn-explode" class="ctrl"><span class="ctrl-icon">↗</span> EXPLODE</button><button id="btn-assemble" class="ctrl active"><span class="ctrl-icon">↙</span> ASSEMBLE</button><button id="btn-reset" class="ctrl"><span class="ctrl-icon">↺</span> RESET</button>
+        <button id="btn-auto" class="ctrl"><span class="ctrl-icon">⟳</span> AUTO ROTATE</button><span class="sep"></span>
+        <button id="btn-isolate" class="ctrl"><span class="ctrl-icon">◎</span> ISOLATE</button><button id="btn-xray" class="ctrl"><span class="ctrl-icon">◉</span> X-RAY</button><button id="btn-conn" class="ctrl blue active"><span class="ctrl-icon">⌁</span> CONNECTION</button><button id="btn-how" class="ctrl amber"><span class="ctrl-icon">▶</span> HOW IT WORKS</button><button id="btn-label" class="ctrl"><span class="ctrl-icon">▣</span> LABEL</button>
+      </div>
+    </main>
+
+    <aside class="right" id="right-panel">
+      <div class="right-head"><div class="eyebrow">DETAIL KOMPONEN</div><div id="part-title" class="part-title">—</div><div id="part-system" class="part-system">—</div><span class="badge">MODEL EDUKASI 3D</span></div>
+      <div id="system-note" class="system-note">Klik objek 3D untuk melihat fungsi, hubungan, dan gejala terkait.</div>
+      <div class="right-body">
+        <div class="card"><div class="card-title">Posisi</div><p id="part-pos">—</p></div>
+        <div class="card"><div class="card-title">Fungsi</div><p id="part-func">—</p></div>
+        <div class="card"><div class="card-title">Cara Kerja</div><p id="part-work">—</p></div>
+        <div class="card"><div class="card-title">Hubungan Komponen</div><div id="related" class="related"></div></div>
+        <div class="card"><div class="card-title">Gejala Jika Bermasalah</div><div id="symptoms"></div></div>
+        <div class="card"><div class="card-title">Catatan Pembelajaran</div><p id="part-note">—</p></div>
+        <div class="card"><div class="card-title">Status Visual</div><div class="mini-grid"><div class="mini"><div class="mini-k">Exploded</div><div id="mini-exp" class="mini-v">0%</div></div><div class="mini"><div class="mini-k">Mode</div><div id="mini-mode" class="mini-v">Normal</div></div></div></div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+(function(){
+'use strict';
+
+const SYSTEMS=[
+{id:'sys-01',n:'01',name:'Suspensi & Kemudi',desc:'Menopang kendaraan, meredam guncangan, dan mengarahkan roda.',flow:['Permukaan jalan','Roda','Control Arm','Coil Spring','Shock Absorber','Bodi Stabil'],factory:'suspension'},
+{id:'sys-02',n:'02',name:'Sistem Rem',desc:'Mengubah energi gerak menjadi panas untuk memperlambat kendaraan.',flow:['Pedal Rem','Master Cylinder','Brake Fluid','Caliper Piston','Brake Pad','Disc Rotor','Roda Melambat'],factory:'brake'},
+{id:'sys-03',n:'03',name:'Roda, Bearing & Poros',desc:'Mendukung putaran roda dan meneruskan tenaga ke roda.',flow:['Transmisi','Drive Shaft','CV Joint','Wheel Hub','Bearing','Roda'],factory:'wheel'},
+{id:'sys-04',n:'04',name:'Mesin & Komponen Dalam',desc:'Komponen inti pembangkit dan penerus tenaga mesin.',flow:['Pembakaran','Piston','Crankshaft','Crank Sprocket','Timing Chain','Camshaft'],factory:'engine'},
+{id:'sys-05',n:'05',name:'Kopling',desc:'Menghubungkan dan memutus tenaga mesin ke transmisi.',flow:['Flywheel','Clutch Disc','Clutch Cover','Release Bearing','Transmisi'],factory:'clutch'},
+{id:'sys-06',n:'06',name:'Transmisi Otomatis',desc:'Mengelola penyaluran tenaga dan sirkulasi ATF pada transmisi otomatis.',flow:['ATF','Filter','Hydraulic Circuit','Torque Converter','Output Shaft'],factory:'transmission'},
+{id:'sys-07',n:'07',name:'Kelistrikan',desc:'Menyuplai, melindungi, dan mengontrol fungsi listrik kendaraan.',flow:['Alternator','Fuse','Relay','Sensor / Aktuator','Beban Listrik'],factory:'electrical'},
+{id:'sys-08',n:'08',name:'Pendingin & Penggerak Belt',desc:'Menjaga suhu kerja mesin dan menyalurkan putaran ke aksesori.',flow:['Crank Pulley','Fan Belt','Water Pump','Coolant','Radiator','Mesin Stabil'],factory:'cooling'},
+{id:'sys-09',n:'09',name:'Sistem AC',desc:'Mensirkulasikan refrigerant untuk membuang panas dari kabin.',flow:['Compressor','Condenser','Expansion Valve','Cooling Zone','Cabin Air'],factory:'ac'},
+{id:'sys-10',n:'10',name:'Filter & Intake Udara',desc:'Menyaring udara, oli, dan bahan bakar sebelum masuk sistem utama.',flow:['Udara Luar','Air Cleaner','Air Filter','Intake Hose','Mesin'],factory:'intake'},
+{id:'sys-11',n:'11',name:'Bodi, Interior & Eksterior',desc:'Komponen kenyamanan, perlindungan, akses, dan visibilitas.',flow:['Motor / Mekanisme','Linkage','Wiper / Window / Door','Pengguna'],factory:'body'},
+{id:'sys-12',n:'12',name:'Fastener, Seal & Hardware',desc:'Pengikat, penyekat, peredam, dan penghubung yang hadir di banyak sistem.',flow:['Bolt / Stud','Nut','Seal / O-Ring','Housing','Sambungan Aman'],factory:'hardware'},
+{id:'sys-13',n:'13',name:'Pelumas & Cairan Servis',desc:'Cairan pendukung untuk pelumasan, pendinginan, dan transfer tekanan.',flow:['Reservoir','Pump / Pressure','Jalur Sistem','Komponen Kerja','Kembali / Servis'],factory:'fluids'},
+{id:'sys-14',n:'14',name:'Umum / Administratif',desc:'Kategori transaksi dan jasa; bukan satu assembly mekanis fisik.',flow:['Kebutuhan Pelanggan','Item / Car Care','Services','Work','Transaksi'],factory:'admin'}
+];
+
+const P=[]; const add=(o)=>P.push(o);
+function p(id,system,name,pos,func,work,related=[],symptoms=[],note=''){add({id,system,name,pos,func,work,related,symptoms,note});}
+// 01
+p('shock_absorber','sys-01','Shock Absorber','Di antara bodi/strut tower dan steering knuckle.','Meredam osilasi pegas agar bodi tetap stabil.','Gerakan suspensi memaksa fluida internal melewati katup peredam sehingga energi gerak berubah menjadi panas.',['coil_spring','absorber_mount','steering_knuckle'],['Mobil memantul berulang','Oli absorber rembes','Stabilitas menurun'],'Visual memperlihatkan hubungan absorber, pegas, knuckle, dan control arm.');
+p('coil_spring','sys-01','Coil Spring','Melingkari atau berdekatan dengan shock absorber pada strut.','Menopang beban kendaraan dan menyerap perubahan tinggi akibat jalan.','Pegas terkompresi saat roda naik dan kembali memanjang saat beban berkurang.',['shock_absorber','spring_seat'],['Ketinggian kendaraan tidak rata','Bunyi logam saat jalan rusak'],'Pegas dan absorber bekerja sebagai pasangan, tetapi fungsi keduanya berbeda.');
+p('control_arm','sys-01','Control Arm','Menghubungkan subframe/sasis dengan steering knuckle.','Memandu gerak naik-turun roda sambil mempertahankan geometri.','Berayun pada bushing dan meneruskan gaya ke ball joint.',['ball_joint','bushing_control_arm','steering_knuckle'],['Setir tidak stabil','Ban aus tidak merata'],'Periksa bushing dan ball joint ketika control arm menunjukkan kelonggaran.');
+p('ball_joint','sys-01','Ball Joint','Di ujung control arm menuju steering knuckle.','Sendi yang memungkinkan roda bergerak naik-turun sekaligus berbelok.','Bola sendi berputar di dalam socket sambil menahan beban.',['control_arm','steering_knuckle'],['Bunyi ketukan','Kemudi terasa longgar'],'Komponen keselamatan; ilustrasi ini hanya untuk edukasi hubungan komponen.');
+p('steering_knuckle','sys-01','Steering Knuckle','Pusat sambungan roda, hub, rem, tie rod, dan suspensi.','Menjadi struktur utama tempat roda berputar dan diarahkan.','Menerima gerakan tie rod untuk mengubah sudut roda.',['ball_joint','tie_rod_end','shock_absorber','wheel_hub'],['Geometri roda berubah','Bearing/komponen pemasangan tidak presisi'],'Knuckle adalah titik temu banyak sistem kaki-kaki.');
+p('tie_rod_end','sys-01','Tie Rod End','Menghubungkan rack end dengan steering knuckle.','Meneruskan gerakan steering rack ke roda.','Sendi tie rod mendorong/menarik knuckle saat setir diputar.',['steering_rack','steering_knuckle'],['Setir oblak','Toe alignment berubah'],'Setelah penggantian, geometri roda biasanya perlu diperiksa.');
+p('steering_rack','sys-01','Steering Rack','Melintang di subframe depan.','Mengubah putaran setir menjadi gerakan linear kiri-kanan.','Pinion menggeser rack yang kemudian mendorong tie rod.',['tie_rod_end'],['Kemudi berat / longgar','Kebocoran pada sistem hidrolik tertentu'],'Tipe rack dapat berbeda antar kendaraan.');
+p('absorber_mount','sys-01','Absorber Mounting','Dudukan atas absorber ke bodi kendaraan.','Mengikat strut ke bodi sambil meredam getaran.','Karet dan bearing mounting mengisolasi getaran serta memungkinkan putaran strut.',['shock_absorber'],['Bunyi gluduk di atas roda','Getaran masuk ke kabin'],'Pada strut depan, mounting sering bekerja bersama bearing absorber.');
+p('spring_seat','sys-01','Coil Spring Seat','Dudukan ujung coil spring.','Menahan posisi pegas dan meredam kontak langsung logam.','Meneruskan beban pegas ke struktur sambil menjaga posisi coil.',['coil_spring'],['Bunyi gesek pegas','Pegas bergeser'],'Posisi seat penting agar ujung coil duduk benar.');
+p('bushing_control_arm','sys-01','Bushing Control Arm','Di titik pivot control arm ke sasis.','Meredam getaran dan memungkinkan gerak terkontrol lengan ayun.','Karet bushing berubah bentuk saat arm bergerak dan kembali ke posisi netral.',['control_arm'],['Bunyi kaki-kaki','Mobil lari saat pengereman'],'Keausan bushing dapat memengaruhi kestabilan dan alignment.');
+//02
+p('brake_disc','sys-02','Brake Disc Rotor','Berputar bersama hub roda.','Permukaan gesek yang dijepit brake pad untuk memperlambat roda.','Gesekan pad pada rotor mengubah energi kinetik menjadi panas.',['brake_caliper','brake_pad','wheel_hub'],['Getaran saat mengerem','Permukaan rotor bergaris'],'Ketebalan dan kondisi permukaan harus diperiksa sesuai spesifikasi kendaraan.');
+p('brake_caliper','sys-02','Brake Caliper','Terpasang mengapit disc rotor.','Mendorong brake pad untuk menjepit rotor.','Tekanan hidrolik menggerakkan piston kaliper sehingga pad menekan rotor.',['brake_piston','brake_pad','brake_disc','brake_hose'],['Rem menarik ke satu sisi','Kebocoran di area kaliper'],'Gerakan pin kaliper harus bebas pada tipe floating caliper.');
+p('brake_pad','sys-02','Brake Pad','Di dalam brake caliper, pada kedua sisi rotor.','Menghasilkan gesekan terhadap disc rotor.','Material friksi menekan rotor saat piston bergerak.',['brake_caliper','brake_disc'],['Bunyi decit / gesek','Jarak pengereman bertambah'],'Pad kiri dan kanan bekerja sebagai pasangan.');
+p('brake_piston','sys-02','Piston, Disc Brake','Di dalam bore kaliper.','Meneruskan tekanan hidrolik menjadi gaya mekanis ke brake pad.','Brake fluid mendorong piston keluar ketika pedal diinjak.',['brake_caliper','brake_pad','brake_hose'],['Piston macet','Rem tidak kembali sempurna'],'Seal piston menjaga tekanan dan mencegah kebocoran.');
+p('brake_hose','sys-02','Brake Hose','Menghubungkan jalur rem bodi ke kaliper yang bergerak bersama roda.','Menyalurkan brake fluid bertekanan.','Selang fleksibel menahan tekanan sambil mengikuti gerak suspensi.',['brake_caliper','master_cylinder'],['Selang retak','Pedal terasa tidak konsisten'],'Jangan biarkan selang terpelintir saat pemasangan.');
+p('master_cylinder','sys-02','Brake Master Cylinder','Di firewall, terhubung ke pedal/booster.','Mengubah gaya pedal menjadi tekanan hidrolik.','Piston master cylinder menekan brake fluid ke sirkuit rem.',['brake_hose','brake_caliper'],['Pedal turun perlahan','Tekanan rem lemah'],'Sistem rem harus bebas udara dan kebocoran.');
+//03
+p('wheel_hub','sys-03','Wheel Hub','Pusat pemasangan roda dan bearing.','Menghubungkan roda dengan knuckle serta poros penggerak.','Hub berputar pada bearing dan menerima torsi dari drive shaft pada roda penggerak.',['wheel_bearing','drive_shaft','wheel_nut','steering_knuckle'],['Bunyi dari roda','Free play roda'],'Hub adalah titik sambungan roda, bearing, rem, dan driveline.');
+p('wheel_bearing','sys-03','Wheel Bearing','Di dalam/bersama wheel hub.','Memungkinkan roda berputar dengan gesekan rendah sambil menahan beban.','Elemen rolling memisahkan race dalam dan luar saat hub berputar.',['wheel_hub'],['Dengung mengikuti kecepatan','Roda terasa oblak'],'Bearing harus terpasang presisi dan terlindung dari kontaminasi.');
+p('drive_shaft','sys-03','Drive Shaft','Dari transmisi/diferensial menuju roda penggerak.','Menyalurkan torsi ke roda.','Poros berputar dan CV joint mengakomodasi perubahan sudut.',['cv_joint','wheel_hub'],['Getaran saat akselerasi','Bunyi ketukan'],'Boot CV joint melindungi grease dan joint dari kotoran.');
+p('cv_joint','sys-03','CV Joint','Di ujung drive shaft dekat roda/transmisi.','Meneruskan torsi pada sudut yang berubah.','Ball track di dalam joint mempertahankan kecepatan sudut relatif konstan.',['drive_shaft','wheel_hub'],['Bunyi klik saat belok','Grease tercecer akibat boot sobek'],'Joint luar bekerja keras saat roda berbelok.');
+p('wheel_nut','sys-03','Wheel Nut','Mengikat velg ke stud/hub roda.','Menahan roda tetap terpasang pada hub.','Gaya jepit dari ulir menahan velg terhadap permukaan hub.',['wheel_hub'],['Roda bergetar','Ulir rusak'],'Pengencangan harus mengikuti pola dan torsi yang sesuai kendaraan.');
+p('wheel_tire','sys-03','Wheel & Tire Reference','Paling luar dari assembly roda.','Menyalurkan gaya penggerak, pengereman, dan arah ke permukaan jalan.','Tire contact patch berinteraksi langsung dengan jalan.',['wheel_hub','wheel_nut'],['Getaran','Keausan tidak rata'],'Ditampilkan sebagai referensi posisi sistem.');
+//04
+p('engine_block','sys-04','Engine Block','Struktur utama mesin.','Menjadi rumah silinder, crankshaft, dan jalur pelumasan/pendinginan.','Menahan beban pembakaran dan menjaga alignment komponen internal.',['cylinder_head','crankshaft','piston','timing_tensioner'],['Overheat berat dapat merusak permukaan','Kebocoran internal/eksternal'],'Visual blok dibuat semi-skematik agar komponen internal terlihat.');
+p('cylinder_head','sys-04','Cylinder Head','Di atas engine block.','Menutup ruang bakar dan menjadi rumah valve, camshaft, serta spark plug.','Mengatur jalur udara masuk, gas buang, dan mekanisme valve.',['engine_block','spark_plug','ignition_coil','timing_chain'],['Kompresi bocor','Overheat'],'Detail internal berbeda tergantung desain mesin.');
+p('piston','sys-04','Piston','Bergerak di dalam silinder engine block.','Menerima tekanan pembakaran dan meneruskannya ke crankshaft.','Gerak naik-turun piston diteruskan melalui connecting rod.',['crankshaft','engine_block'],['Kompresi turun','Bunyi abnormal'],'Piston pada demo bergerak saat HOW IT WORKS aktif.');
+p('crankshaft','sys-04','Crankshaft','Di bagian bawah engine block.','Mengubah gerak naik-turun piston menjadi gerak putar.','Connecting rod mendorong crank throw sehingga poros berputar.',['piston','timing_chain','engine_block'],['Knocking','Tekanan oli menurun'],'Poros ini juga menjadi sumber putaran untuk sistem timing.');
+p('timing_chain','sys-04','Timing Chain','Di sisi timing antara crankshaft dan camshaft.','Menyinkronkan putaran crankshaft dan camshaft.','Rantai bergerak pada sprocket dengan ketegangan dikontrol tensioner.',['crankshaft','timing_tensioner','cylinder_head'],['Gemerincing','Timing dapat bergeser'],'Pada kendaraan tertentu sistem ini dapat menggunakan timing belt.');
+p('timing_tensioner','sys-04','Timing Chain Tensioner','Menekan guide/rantai pada jalur timing.','Menjaga rantai timing tetap tegang.','Tensioner memberikan gaya ke guide untuk mengendalikan slack rantai.',['timing_chain','engine_block'],['Rantai berisik','Slack berlebihan'],'Fungsi utama mengikuti katalog: menjaga ketegangan rantai timing.');
+p('spark_plug','sys-04','Spark Plug / Busi','Terpasang pada cylinder head menghadap ruang bakar.','Memercikkan bunga api untuk menyulut campuran udara-bahan bakar.','Tegangan tinggi menghasilkan percikan pada celah elektroda.',['ignition_coil','cylinder_head'],['Misfire','Sulit hidup'],'Spark plug juga ditautkan ke modul kelistrikan melalui ignition coil.');
+p('ignition_coil','sys-04','Ignition Coil','Di atas/dekat spark plug pada sistem pengapian modern.','Menaikkan tegangan agar spark plug dapat menghasilkan percikan.','Perubahan arus primer menginduksi tegangan tinggi pada kumparan sekunder.',['spark_plug'],['Misfire','Tenaga turun'],'Konfigurasi coil berbeda antar kendaraan.');
+//05
+p('clutch_disc','sys-05','Clutch Disc','Di antara flywheel dan clutch cover.','Meneruskan tenaga mesin ke input shaft transmisi saat kopling terhubung.','Friction lining terjepit antara flywheel dan pressure plate.',['clutch_cover','release_bearing','flywheel_ref'],['Kopling selip','Akselerasi tidak sebanding rpm'],'Kampas kopling merupakan komponen gesek utama.');
+p('clutch_cover','sys-05','Clutch Cover','Membungkus pressure plate dan diaphragm spring.','Menekan clutch disc ke flywheel.','Diaphragm spring menghasilkan gaya jepit saat pedal dilepas.',['clutch_disc','release_bearing','flywheel_ref'],['Pedal berat','Kopling tidak terhubung sempurna'],'Pressure plate divisualkan sebagai satu kesatuan dengan cover.');
+p('release_bearing','sys-05','Clutch Release Bearing','Di sekitar input shaft, menghadap diaphragm spring.','Menekan diaphragm spring saat pedal kopling diinjak.','Bearing memungkinkan kontak dengan cover yang berputar sambil fork mendorong aksial.',['clutch_cover','clutch_disc'],['Bunyi saat pedal diinjak','Kopling sulit dilepas'],'Bearing ini bekerja hanya saat mekanisme release bergerak.');
+p('clutch_master','sys-05','Clutch Master Cylinder','Terhubung ke pedal kopling pada sistem hidrolik.','Mengubah gaya pedal menjadi tekanan hidrolik.','Piston master cylinder mendorong fluida ke slave cylinder.',['clutch_slave'],['Pedal kopling lembek','Kebocoran fluida'],'Tidak semua kendaraan memakai aktuasi hidrolik.');
+p('clutch_slave','sys-05','Clutch Slave Cylinder','Dekat rumah transmisi/release fork.','Mengubah tekanan hidrolik menjadi gerakan release fork.','Tekanan fluida mendorong piston slave.',['clutch_master','release_bearing'],['Pedal tidak kembali','Kebocoran'],'Pada beberapa desain slave cylinder terintegrasi dengan release bearing.');
+p('flywheel_ref','sys-05','Flywheel Reference','Terpasang pada ujung crankshaft.','Permukaan pasangan clutch disc dan penyimpan inersia putaran.','Berputar bersama crankshaft dan menyalurkan torsi ke clutch disc.',['clutch_disc','clutch_cover'],['Getaran / permukaan terbakar'],'Ditampilkan sebagai komponen referensi hubungan, bukan item utama katalog.');
+//06
+p('at_filter','sys-06','Filter, Auto Transmission','Di dalam oil pan / jalur ATF transmisi otomatis.','Menyaring kotoran dalam ATF.','ATF melewati media filter sebelum masuk kembali ke sirkuit hidrolik.',['atf','trans_cooler_hose'],['Perpindahan gigi terasa kasar','Aliran ATF terganggu'],'Lokasi filter berbeda sesuai desain transmisi.');
+p('trans_cooler_hose','sys-06','Hose, Transmission Oil Cooler','Menghubungkan transmisi dengan cooler ATF.','Menyalurkan ATF menuju dan dari cooler.','ATF panas mengalir ke cooler lalu kembali dengan temperatur lebih rendah.',['atf','at_filter'],['Rembesan ATF','Suhu transmisi meningkat'],'Periksa kondisi hose dan clamp pada servis.');
+p('trans_oil_seal','sys-06','Oil Seal Transmission','Pada poros keluar/masuk rumah transmisi.','Mencegah ATF bocor melalui poros berputar.','Bib seal menempel pada permukaan poros untuk membentuk penyekatan dinamis.',['atf'],['ATF menetes','Area poros basah'],'Permukaan poros dan seal harus bersih saat pemasangan.');
+p('converter_seal','sys-06','Oil Seal, Converter','Di area torque converter menuju transmisi.','Mencegah kebocoran ATF pada sambungan converter.','Seal menjaga fluida tetap berada di dalam housing saat poros berputar.',['atf'],['ATF bocor dari bell housing'],'Kerusakan seal dapat memerlukan pembongkaran transmisi.');
+p('atf','sys-06','ATF — Automatic Transmission Fluid','Bersirkulasi di seluruh jalur hidrolik transmisi.','Melumasi, mendinginkan, dan menjadi media hidrolik.','Pompa transmisi mensirkulasikan ATF melalui valve body, converter, clutch pack, dan cooler.',['at_filter','trans_cooler_hose','trans_oil_seal','converter_seal'],['Warna/bau berubah','Perpindahan gigi tidak normal'],'Gunakan spesifikasi ATF sesuai kendaraan.');
+//07
+p('alternator','sys-07','Alternator','Diputar belt pada sisi mesin.','Menghasilkan listrik saat mesin hidup dan mengisi aki.','Rotor berputar di dalam stator menghasilkan arus yang kemudian disearahkan.',['alternator_pulley','fan_belt'],['Lampu aki menyala','Tegangan pengisian rendah'],'Sistem pengisian berkaitan dengan belt drive.');
+p('alternator_pulley','sys-07','Alternator Pulley','Pada poros depan alternator.','Menerima putaran dari belt untuk memutar alternator.','Gesekan belt memutar pulley dan rotor alternator.',['alternator','fan_belt'],['Bunyi bearing','Belt tidak stabil'],'Jenis pulley dapat berbeda antar aplikasi.');
+p('fuse','sys-07','Fuse / Sekring','Di fuse box kabin atau ruang mesin.','Memutus arus saat terjadi kelebihan arus.','Elemen fuse meleleh ketika arus melampaui rating.',['relay','headlight'],['Sirkuit mati','Fuse putus berulang'],'Cari penyebab arus berlebih sebelum mengganti fuse berulang kali.');
+p('relay','sys-07','Relay','Di fuse/relay box atau dekat beban tertentu.','Mengendalikan arus besar menggunakan sinyal kecil.','Koil elektromagnet menarik kontak untuk membuka/menutup sirkuit.',['fuse','headlight'],['Beban tidak aktif','Klik relay tidak normal'],'Relay adalah saklar elektromagnetik.');
+p('headlight','sys-07','Headlight','Bagian depan kendaraan.','Menerangi jalan dan memberikan visibilitas.','Energi listrik diubah menjadi cahaya oleh sumber lampu.',['fuse','relay'],['Lampu mati/redup'],'Periksa konektor, fuse, relay, dan sumber lampu.');
+p('speed_sensor','sys-07','Speed Sensor','Dekat roda/transmisi tergantung aplikasi.','Mendeteksi kecepatan putaran untuk kontrol kendaraan.','Sensor menghasilkan sinyal sesuai kecepatan target/roda.',['wheel_hub'],['Speedometer/ABS bermasalah'],'Sinyal sensor dapat dipakai beberapa modul kendaraan.');
+p('wiper_motor','sys-07','Wiper Motor','Di bawah cowl / area mekanisme wiper.','Mengubah energi listrik menjadi gerak mekanis wiper.','Motor memutar crank yang diteruskan ke wiper link.',['wiper_link'],['Wiper tidak bergerak','Gerakan lambat'],'Wiper motor menghubungkan sistem kelistrikan dan bodi.');
+//08
+p('radiator','sys-08','Radiator Assembly','Di depan ruang mesin.','Melepas panas coolant ke udara luar.','Coolant panas mengalir melalui tube radiator dan melepaskan panas lewat fin.',['radiator_hose','water_pump','reserve_tank'],['Overheat','Kebocoran coolant'],'Aliran udara dan kondisi fin memengaruhi pelepasan panas.');
+p('water_pump','sys-08','Water Pump','Menempel pada mesin dan terhubung jalur coolant.','Mensirkulasikan coolant ke mesin dan radiator.','Impeller berputar dan menghasilkan aliran coolant.',['radiator','radiator_hose','fan_belt'],['Overheat','Bocor di area pump'],'Cara penggerak water pump berbeda antar mesin.');
+p('thermostat','sys-08','Thermostat','Di housing jalur coolant mesin.','Mengatur aliran coolant berdasarkan temperatur.','Elemen termal membuka katup ketika suhu meningkat.',['radiator_hose','water_pump'],['Mesin terlalu panas / terlalu dingin'],'Thermostat membantu mesin mencapai suhu kerja.');
+p('radiator_hose','sys-08','Radiator Hose','Menghubungkan mesin dan radiator.','Menyalurkan coolant.','Hose fleksibel membawa coolant panas/dingin di antara komponen.',['radiator','water_pump','thermostat'],['Selang menggembung/retak','Coolant bocor'],'Periksa clamp dan kekerasan hose.');
+p('fan_belt','sys-08','Fan / Accessory Belt','Melilit pulley aksesori mesin.','Menyalurkan putaran crankshaft ke aksesori.','Gesekan multi-rib pada pulley mentransmisikan torsi.',['belt_tensioner','idler_pulley','alternator','water_pump'],['Belt mencicit','Retak / aus'],'Satu belt dapat menggerakkan beberapa aksesori.');
+p('belt_tensioner','sys-08','Belt Tensioner','Pada jalur accessory belt.','Menjaga ketegangan belt agar tidak selip.','Pegas/tensioner mempertahankan gaya tekan pada belt.',['fan_belt','idler_pulley'],['Belt bergetar','Bunyi pulley'],'Tensioner otomatis mengompensasi perubahan panjang belt.');
+p('idler_pulley','sys-08','Idler Pulley','Pada jalur belt tanpa menggerakkan aksesori utama.','Mengarahkan lintasan belt.','Pulley berputar bebas pada bearing.',['fan_belt','belt_tensioner'],['Bunyi desing','Pulley oblak'],'Bearing idler menerima putaran terus-menerus.');
+p('reserve_tank','sys-08','Radiator Reserve Tank','Di ruang mesin dekat radiator.','Menampung ekspansi coolant dan mengembalikannya saat suhu turun.','Perubahan tekanan memindahkan coolant antara radiator dan reservoir.',['radiator'],['Level coolant berubah abnormal','Tangki retak'],'Periksa level pada kondisi yang direkomendasikan pabrikan.');
+//09
+p('ac_compressor','sys-09','AC Compressor','Diputar oleh belt mesin.','Memompa dan menaikkan tekanan refrigerant.','Compressor menarik refrigerant tekanan rendah lalu mengirimkannya sebagai gas bertekanan tinggi.',['condenser','expansion_valve','fan_belt'],['AC tidak dingin','Bunyi compressor'],'Kompresor menghubungkan sistem AC dan belt drive.');
+p('condenser','sys-09','Condenser','Di depan radiator / area aliran udara depan.','Melepas panas refrigerant bertekanan tinggi.','Refrigerant melepaskan panas dan berubah menuju fase cair.',['ac_compressor','expansion_valve'],['AC kurang dingin','Fin condenser kotor/bocor'],'Aliran udara sangat penting untuk pelepasan panas.');
+p('expansion_valve','sys-09','Expansion Valve','Pada jalur refrigerant sebelum area pendinginan evaporator.','Menurunkan tekanan refrigerant.','Orifice/valve mengatur aliran sehingga temperatur refrigerant turun.',['condenser','cabin_filter'],['Pendinginan tidak stabil'],'Detail kontrol valve berbeda antar sistem.');
+p('cabin_filter','sys-09','Cabin Filter','Di jalur masuk udara kabin.','Menyaring debu dan kotoran sebelum udara masuk kabin.','Media filter menangkap partikel saat blower menarik udara.',['expansion_valve'],['Aliran udara lemah','Bau tidak sedap'],'Cabin filter tidak mengatur refrigerant; ia menyaring udara kabin.');
+//10
+p('air_cleaner','sys-10','Air Cleaner Housing','Di ruang mesin pada jalur masuk udara.','Menjadi rumah filter udara dan mengarahkan udara ke intake.','Udara luar masuk ke housing lalu melewati filter.',['air_filter','intake_hose'],['Housing retak','Debu dapat melewati jalur tidak semestinya'],'Pastikan housing tertutup rapat.');
+p('air_filter','sys-10','Air Filter','Di dalam air cleaner.','Menyaring debu dari udara sebelum masuk mesin.','Media berpori menahan partikel sambil melewatkan udara.',['air_cleaner','intake_hose'],['Akselerasi terasa berat','Filter sangat kotor'],'Filter yang terlalu kotor meningkatkan hambatan aliran.');
+p('intake_hose','sys-10','Air Intake Hose','Menghubungkan air cleaner ke throttle/intake.','Menyalurkan udara bersih menuju mesin.','Hose fleksibel mengikuti gerakan mesin sambil menjaga jalur tertutup.',['air_cleaner','air_filter'],['Retak / bocor','Idle tidak stabil pada beberapa sistem'],'Kebocoran setelah sensor udara dapat memengaruhi campuran pada aplikasi tertentu.');
+p('fuel_filter','sys-10','Fuel Filter','Di jalur bahan bakar / dalam tangki tergantung kendaraan.','Menyaring kotoran pada bahan bakar.','Bahan bakar melewati media filter sebelum mencapai sistem suplai mesin.',['air_filter'],['Tenaga turun','Tekanan bahan bakar terganggu'],'Lokasi dan interval servis berbeda antar kendaraan.');
+p('oil_filter','sys-10','Oil Filter','Pada jalur sirkulasi oli mesin.','Menyaring partikel dari engine oil.','Pompa oli mengalirkan oli melalui media filter.',['engine_block'],['Kontaminasi oli','Tekanan oli bermasalah'],'Gunakan filter sesuai spesifikasi mesin.');
+p('pcv_hose','sys-10','PCV Hose','Menghubungkan crankcase/valve cover ke intake.','Menyalurkan uap crankcase kembali ke jalur intake.','Perbedaan tekanan menarik blow-by gas melalui sistem PCV.',['intake_hose','engine_block'],['Selang retak','Idle/ventilasi crankcase terganggu'],'Hose PCV merupakan bagian jalur ventilasi crankcase.');
+//11
+p('door_handle','sys-11','Door Handle','Pada panel pintu.','Memungkinkan pengguna mengoperasikan mekanisme pembuka pintu.','Gerakan handle menarik cable/link latch.',['door_cable'],['Pintu sulit dibuka'],'Mekanisme berbeda antara handle luar dan dalam.');
+p('door_cable','sys-11','Cable Door','Di dalam panel pintu.','Meneruskan gerakan handle ke latch/lock mechanism.','Cable fleksibel menarik tuas latch ketika handle dioperasikan.',['door_handle'],['Handle bergerak tetapi pintu tidak membuka'],'Routing cable harus bebas tekukan tajam.');
+p('wiper_link','sys-11','Wiper Link','Di bawah cowl kaca depan.','Meneruskan putaran motor wiper ke lengan wiper.','Crank motor mengubah putaran menjadi gerak bolak-balik linkage.',['wiper_motor','wiper_blade'],['Wiper bergerak tidak sinkron','Linkage longgar'],'HOW IT WORKS memperagakan gerak linkage.');
+p('wiper_blade','sys-11','Wiper Blade','Pada lengan wiper di kaca depan.','Menyapu air dan kotoran dari kaca.','Karet blade menempel pada kaca saat lengan bergerak.',['wiper_link','washer_nozzle'],['Sapuan bergaris','Bunyi chattering'],'Kondisi karet memengaruhi hasil sapuan.');
+p('washer_nozzle','sys-11','Wiper Nozzle','Pada kap/cowl mengarah ke kaca depan.','Menyemprotkan cairan pembersih kaca.','Tekanan pompa washer mendorong cairan melalui nozzle.',['wiper_blade'],['Semprotan lemah/tersumbat'],'Arah semprotan harus tepat ke area sapuan.');
+p('weatherstrip','sys-11','Weatherstrip','Di perimeter pintu/kaca/bukaan bodi.','Mencegah air, debu, dan angin masuk.','Karet terkompresi saat pintu tertutup membentuk seal.',['door_handle'],['Suara angin','Air masuk kabin'],'Karet harus lentur dan tidak sobek.');
+p('backdoor_stay','sys-11','Back Door Stay','Di sisi pintu bagasi/hatch.','Menahan pintu belakang tetap terbuka.','Gas spring menghasilkan gaya bantu saat hatch diangkat.',['door_handle'],['Pintu bagasi turun sendiri'],'Ganti berpasangan jika performa kiri/kanan tidak seimbang.');
+//12
+p('bolt','sys-12','Bolt / Baut','Pada hampir semua sambungan mekanis.','Mengikat dua atau lebih komponen.','Ulir menghasilkan gaya jepit ketika baut dikencangkan.',['nut','washer_ref'],['Ulir rusak','Sambungan longgar'],'Torsi pengencangan harus mengikuti spesifikasi aplikasi.');
+p('stud','sys-12','Stud Bolt','Ditanam pada salah satu komponen dan menerima nut pada sisi lain.','Memberi titik pengikat tetap.','Ulir dua sisi menahan stud pada housing dan nut di sisi pemasangan.',['nut'],['Ulir aus','Stud patah'],'Banyak digunakan pada hub, exhaust, dan sambungan mesin.');
+p('nut','sys-12','Nut / Mur','Berpasangan dengan bolt atau stud.','Mengunci sambungan berulir.','Nut menghasilkan preload pada sambungan saat dikencangkan.',['bolt','stud'],['Ulir dol','Sambungan kendor'],'Gunakan tipe nut sesuai aplikasi.');
+p('o_ring','sys-12','O-Ring','Di groove sambungan fluida/gas.','Menyekat sambungan agar tidak bocor.','Elastomer terkompresi mengisi celah antara dua permukaan.',['oil_seal'],['Rembesan fluida'],'Material O-ring harus kompatibel dengan fluida dan suhu.');
+p('oil_seal','sys-12','Oil Seal','Mengelilingi poros berputar.','Menahan oli/grease di dalam housing dan mencegah kontaminan masuk.','Bib seal bersentuhan dengan poros sambil mengikuti putaran.',['o_ring'],['Oli merembes di sekitar poros'],'Permukaan poros tidak boleh tergores.');
+p('stopper','sys-12','Stopper','Pada mekanisme yang membutuhkan batas gerak.','Membatasi perjalanan komponen dan mengurangi benturan.','Material stopper menerima beban pada posisi akhir gerak.',['rubber_part'],['Benturan keras','Komponen melewati batas gerak'],'Bentuk stopper sangat tergantung lokasi aplikasi.');
+p('rubber_part','sys-12','Rubber Part','Di berbagai dudukan, seal, dan peredam.','Meredam getaran, melindungi, atau menyekat.','Elastomer berubah bentuk untuk menyerap energi dan kembali ke bentuk semula.',['stopper'],['Retak / getas'],'Panas dan umur dapat mengurangi elastisitas karet.');
+p('washer_ref','sys-12','Washer Reference','Di bawah kepala bolt/nut pada banyak sambungan.','Mendistribusikan beban jepit.','Permukaan washer memperbesar area kontak.',['bolt','nut'],['Permukaan sambungan rusak'],'Ditampilkan sebagai referensi visual sambungan.');
+//13
+p('grease','sys-13','Grease / Gemuk','Pada bearing, joint, dan titik gesek tertentu.','Memberi pelumasan kental yang bertahan lama.','Base oil dan thickener membentuk film pelumas pada permukaan bergerak.',['wheel_bearing','cv_joint'],['Gesekan/bunyi meningkat jika pelumasan hilang'],'Gunakan jenis grease yang sesuai aplikasinya.');
+p('oil_cap','sys-13','Oil Filler Cap','Pada valve cover / titik pengisian engine oil.','Menutup lubang pengisian oli agar oli tidak tumpah dan kotoran tidak masuk.','Seal pada cap menahan uap/percikan oli di dalam mesin.',['engine_block'],['Rembesan oli sekitar cap'],'Pastikan seal cap masih baik.');
+p('engine_oil_ref','sys-13','Engine Oil — Referensi Servis','Bersirkulasi pada mesin.','Melumasi, membantu pendinginan, dan membawa kontaminan ke filter.','Oil pump mensirkulasikan oli melalui jalur pelumasan.',['oil_filter','engine_block'],['Tekanan oli turun','Oli terkontaminasi'],'Cairan ini berasal dari kategori mesin tetapi ditampilkan di modul servis.');
+p('brake_fluid_ref','sys-13','Brake Fluid — Referensi Servis','Di reservoir dan jalur hidrolik rem.','Meneruskan tekanan dari master cylinder ke brake caliper/wheel cylinder.','Fluida hampir tidak dapat dimampatkan sehingga tekanan diteruskan.',['master_cylinder','brake_caliper'],['Pedal spongy jika ada udara','Cairan terkontaminasi'],'Gunakan spesifikasi brake fluid yang sesuai kendaraan.');
+p('coolant_ref','sys-13','Coolant — Referensi Servis','Bersirkulasi di mesin, hose, radiator, dan water pump.','Menyerap dan memindahkan panas mesin serta membantu perlindungan korosi.','Water pump mengedarkan coolant melalui sistem pendingin.',['radiator','water_pump'],['Overheat','Korosi jika cairan tidak sesuai'],'Warna coolant bukan satu-satunya penentu kompatibilitas.');
+p('atf_ref','sys-13','ATF — Referensi Servis','Di dalam transmisi otomatis dan cooler circuit.','Melumasi, mendinginkan, dan menjadi media hidrolik.','Pompa transmisi mengalirkan ATF ke sirkuit kontrol dan komponen gesek.',['atf'],['Perpindahan gigi abnormal'],'Spesifikasi ATF sangat tergantung tipe transmisi.');
+//14
+p('car_care','sys-14','Car Care','Kategori produk perawatan kendaraan.','Mengelompokkan produk non-sparepart untuk kebersihan/perawatan tampilan.','Digunakan sebagai kategori transaksi, bukan mekanisme kendaraan.',['services'],['Bukan komponen mekanis'],'Visual berupa kartu konseptual.');
+p('items','sys-14','Items','Kategori barang yang belum diklasifikasikan spesifik.','Memudahkan pencatatan barang umum.','Bekerja pada sisi administrasi data/penjualan.',['misc'],['Bukan komponen mekanis'],'Perlu klasifikasi lebih rinci bila data digunakan untuk analisis teknis.');
+p('misc','sys-14','Miscellaneous','Kategori campuran/lain-lain.','Menampung item kecil atau tidak rutin.','Digunakan untuk pencatatan transaksi umum.',['items'],['Bukan komponen mekanis'],'Hindari memakai kategori terlalu luas bila analisis membutuhkan detail.');
+p('services','sys-14','Services','Kategori jasa terkait sparepart.','Mencatat jasa pemasangan, pengecekan, atau layanan lain.','Berpasangan dengan penjualan part saat servis.',['work','car_care'],['Bukan komponen mekanis'],'Nilai edukasi: memisahkan barang dan layanan.');
+p('work','sys-14','Work','Kategori ongkos kerja/labor.','Mencatat biaya pengerjaan secara terpisah dari harga part.','Digunakan untuk transaksi jasa bengkel.',['services'],['Bukan komponen mekanis'],'Visual berupa node administrasi, bukan assembly.');
+
+const systemsById=Object.fromEntries(SYSTEMS.map(s=>[s.id,s]));
+const partsById=Object.fromEntries(P.map(x=>[x.id,x]));
+SYSTEMS.forEach(s=>s.parts=P.filter(x=>x.system===s.id).map(x=>x.id));
+
+let scene,camera,renderer,controls,root,connGroup,grid,ground;
+let registered=[],currentSystem='sys-04',activePart='timing_tensioner';
+let explode=0,targetExplode=0,autoRotate=false,xray=false,isolate=false,connections=true,how=false,labels=false;
+let camGoal=null,lookGoal=null,hoverId=null,pointerDown=null,dragged=false,lastTime=0,toastTimer=0;
+let raycaster,mouse,animationPhase=0,flowParticles=[];
+const canvasWrap=document.getElementById('canvas-wrap'), labelLayer=document.getElementById('label-layer'), tooltip=document.getElementById('tooltip');
+
+function start(){
+  renderSidebar();setupSearch();setupUI();
+  if(!window.THREE || !THREE.WebGLRenderer){document.getElementById('fallback').classList.add('show');return;}
+  try{init3D();loadSystem('sys-04',true);requestAnimationFrame(loop);}catch(err){console.error(err);document.getElementById('fallback').classList.add('show');}
+}
+
+function init3D(){
+  scene=new THREE.Scene();scene.background=new THREE.Color(0x080b0d);scene.fog=new THREE.FogExp2(0x080b0d,.023);
+  const w=canvasWrap.clientWidth||800,h=canvasWrap.clientHeight||600;
+  camera=new THREE.PerspectiveCamera(38,w/h,.08,120);camera.position.set(6,4.2,8);
+  renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance',alpha:false});renderer.setSize(w,h);renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.7));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputEncoding=THREE.sRGBEncoding;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;canvasWrap.insertBefore(renderer.domElement,canvasWrap.firstChild);
+  controls=new THREE.OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=.065;controls.minDistance=2.2;controls.maxDistance=28;controls.target.set(0,1,0);controls.autoRotateSpeed=1.5;
+  const hemi=new THREE.HemisphereLight(0xd8efff,0x18231d,.8);scene.add(hemi);
+  const key=new THREE.DirectionalLight(0xffffff,2.2);key.position.set(7,10,7);key.castShadow=true;key.shadow.mapSize.set(1024,1024);scene.add(key);
+  const rim=new THREE.DirectionalLight(0x58c993,1.15);rim.position.set(-6,5,-6);scene.add(rim);
+  const fill=new THREE.DirectionalLight(0x3aa7dd,.7);fill.position.set(1,1,8);scene.add(fill);
+  ground=new THREE.Mesh(new THREE.CircleGeometry(13,64),new THREE.MeshStandardMaterial({color:0x0c1114,metalness:.35,roughness:.45,transparent:true,opacity:.86}));ground.rotation.x=-Math.PI/2;ground.position.y=-2.15;ground.receiveShadow=true;scene.add(ground);
+  grid=new THREE.GridHelper(26,32,0x2d714f,0x182027);grid.position.y=-2.12;grid.material.transparent=true;grid.material.opacity=.42;scene.add(grid);
+  root=new THREE.Group();scene.add(root);connGroup=new THREE.Group();scene.add(connGroup);
+  raycaster=new THREE.Raycaster();mouse=new THREE.Vector2();
+  renderer.domElement.addEventListener('pointerdown',e=>{pointerDown={x:e.clientX,y:e.clientY};dragged=false;});
+  renderer.domElement.addEventListener('pointermove',onPointerMove);
+  renderer.domElement.addEventListener('pointerup',e=>{if(pointerDown&&Math.hypot(e.clientX-pointerDown.x,e.clientY-pointerDown.y)>5)dragged=true;if(!dragged&&hoverId)selectPart(hoverId,true);pointerDown=null;});
+  renderer.domElement.addEventListener('pointerleave',()=>{hoverId=null;tooltip.classList.remove('show');renderer.domElement.style.cursor='grab';});
+  window.addEventListener('resize',resize);
+}
+
+function mat(color,metal=.65,rough=.35,opacity=1){const m=new THREE.MeshStandardMaterial({color,metalness:metal,roughness:rough,transparent:opacity<1,opacity});m.userData.baseColor=new THREE.Color(color);m.userData.baseOpacity=opacity;return m;}
+const M={metal:()=>mat(0x85919a,.88,.24),dark:()=>mat(0x232b31,.82,.36),black:()=>mat(0x101519,.42,.66),rubber:()=>mat(0x15191c,.08,.88),green:()=>mat(0x327751,.5,.34),cyan:()=>mat(0x2388b9,.55,.25),amber:()=>mat(0xc98414,.56,.34),red:()=>mat(0xa93434,.68,.32),alum:()=>mat(0xb7c0c7,.88,.22),plastic:()=>mat(0x303943,.12,.66),white:()=>mat(0xe6ebee,.08,.26),fluid:(c)=>mat(c,.05,.12,.68)};
+function mesh(g,m){const x=new THREE.Mesh(g,m);x.castShadow=true;x.receiveShadow=true;return x;}
+function box(w,h,d,m){return mesh(new THREE.BoxGeometry(w,h,d),m)}
+function cyl(r,l,m,axis='y',seg=24){const o=mesh(new THREE.CylinderGeometry(r,r,l,seg),m);if(axis==='x')o.rotation.z=Math.PI/2;if(axis==='z')o.rotation.x=Math.PI/2;return o}
+function ring(r,t,m,seg=32){return mesh(new THREE.TorusGeometry(r,t,12,seg),m)}
+function tube(points,r,m,closed=false){const c=new THREE.CatmullRomCurve3(points.map(a=>new THREE.Vector3(...a)),closed,'catmullrom',.25);return mesh(new THREE.TubeGeometry(c,Math.max(32,points.length*12),r,8,closed),m)}
+function spring(radius,height,turns,m){const pts=[];for(let i=0;i<=turns*20;i++){const t=i/(turns*20);pts.push([Math.cos(t*turns*Math.PI*2)*radius,-height/2+t*height,Math.sin(t*turns*Math.PI*2)*radius]);}return tube(pts,.055,m,false)}
+function gear(radius,width,m,teeth=18){const g=new THREE.Group();const core=cyl(radius,width,m,'z',32);g.add(core);for(let i=0;i<teeth;i++){const a=i/teeth*Math.PI*2;const t=box(.12,.12,width,m.clone());t.position.set(Math.cos(a)*(radius+.045),Math.sin(a)*(radius+.045),0);t.rotation.z=a;g.add(t);}return g}
+function cloneMat(m){return m.clone();}
+function part(id,obj,pos,delta,anim={}){obj.position.set(...pos);obj.userData={id,base:new THREE.Vector3(...pos),delta:new THREE.Vector3(...delta),anim,phase:Math.random()*Math.PI*2};obj.traverse(o=>{if(o.isMesh){o.userData.partId=id;o.material.userData.baseColor=o.material.color.clone();o.material.userData.baseOpacity=o.material.opacity;o.castShadow=true;o.receiveShadow=true;}});root.add(obj);registered.push(obj);return obj;}
+function group(...objs){const g=new THREE.Group();objs.flat().forEach(o=>g.add(o));return g}
+function boltVisual(scale=1){const g=new THREE.Group();const shaft=cyl(.12*scale,.7*scale,M.metal());shaft.position.y=-.16*scale;const head=cyl(.23*scale,.18*scale,M.metal(),'y',6);head.position.y=.28*scale;g.add(shaft,head);return g}
+function cardVisual(w,h,color){const g=new THREE.Group();const b=box(w,h,.12,mat(color,.25,.55));g.add(b);for(let i=0;i<3;i++){const line=box(w*.65,.025,.01,M.white());line.position.set(0,h*.18-i*.14,.07);g.add(line);}return g}
+
+const FACTORIES={
+engine(){
+  const block=group(box(2.7,1.45,3.1,M.dark()),box(2.35,.55,3.25,M.metal()));block.children[0].position.y=.2;block.children[1].position.y=-.8;part('engine_block',block,[0,.2,0],[0,-.3,-2.5],{pulse:true});
+  const head=group(box(2.55,.8,3.15,M.alum()),box(2.2,.35,2.9,M.dark()));head.children[1].position.y=.56;part('cylinder_head',head,[0,1.65,0],[0,2.8,0]);
+  const crank=new THREE.Group();const shaft=cyl(.18,3.6,M.alum(),'z');crank.add(shaft);[-1.15,-.38,.38,1.15].forEach((z,i)=>{const cw=box(.75,.38,.18,M.metal());cw.position.set((i%2?.16:-.16),0,z);crank.add(cw);});part('crankshaft',crank,[0,-.55,0],[0,-2.7,0],{spinZ:2.0});
+  const pist=new THREE.Group();[-1.12,-.38,.38,1.12].forEach((z,i)=>{const ph=cyl(.36,.45,M.alum());ph.position.set(0,.5+(i%2?-.12:.12),z);const rod=box(.12,1.0,.1,M.metal());rod.position.set(0,-.1,z);pist.add(ph,rod);});part('piston',pist,[0,.55,0],[2.8,1.4,0],{piston:true});
+  const cs=gear(.44,.16,M.metal(),16);cs.rotation.x=Math.PI/2;part('timing_chain',group(tube([[.42,-.7,1.8],[1.05,.55,1.8],[.72,2.0,1.8],[0,2.25,1.8],[-.72,2.0,1.8],[-1.05,.55,1.8],[-.42,-.7,1.8]],.055,M.black(),true)),[0,0,0],[0,.8,3.2],{pulse:true});
+  part('timing_tensioner',group(cyl(.13,.65,M.alum()),box(.13,1.0,.14,M.green())),[1.02,.45,1.8],[2.8,.8,2.5],{pulse:true});
+  const plugs=new THREE.Group(),coils=new THREE.Group();[-1.1,-.37,.37,1.1].forEach(z=>{const sp=group(cyl(.07,.46,M.white()),cyl(.105,.16,M.amber(),'y',6));sp.position.set(0,0,z);plugs.add(sp);const co=group(box(.3,.28,.3,M.black()),cyl(.08,.42,M.rubber()));co.position.set(0,0,z);coils.add(co);});part('spark_plug',plugs,[0,2.15,0],[2.4,2.8,0],{spark:true});part('ignition_coil',coils,[0,2.75,0],[-2.4,3.1,0],{pulse:true});
+},
+suspension(){
+  const shock=group(cyl(.18,2.8,M.metal()),cyl(.29,.8,M.dark()));shock.children[1].position.y=-.8;part('shock_absorber',shock,[0,.4,0],[0,2.7,0],{bob:true});
+  const sp=spring(.62,2.35,7,M.alum());part('coil_spring',group(sp),[0,.65,0],[0,3.0,1.3],{spring:true});
+  const arm=new THREE.Group();const a1=box(1.7,.18,.28,M.dark());a1.rotation.z=-.35;const a2=box(1.45,.18,.28,M.dark());a2.rotation.z=.38;a1.position.x=-.45;a2.position.x=.45;arm.add(a1,a2);part('control_arm',arm,[0,-1.1,.2],[-2.8,-1.5,0],{swing:true});
+  const ball=group(mesh(new THREE.SphereGeometry(.25,24,16),M.metal()),cyl(.12,.45,M.metal()));ball.children[1].position.y=.27;part('ball_joint',ball,[.95,-.75,.2],[2.7,-1.8,0],{pulse:true});
+  const kn=group(box(.7,1.35,.45,M.metal()),cyl(.3,.55,M.dark(),'z'));part('steering_knuckle',kn,[1.0,.15,.2],[3.3,.2,0]);
+  const rack=group(cyl(.12,3.7,M.metal(),'x'),box(.85,.45,.45,M.dark()));part('steering_rack',rack,[0,-.55,-1.05],[0,-1.2,-2.7],{slide:true});
+  const tie=group(cyl(.07,2.0,M.metal(),'x'),mesh(new THREE.SphereGeometry(.16,16,12),M.metal()));tie.children[1].position.x=1.0;part('tie_rod_end',tie,[.15,-.35,-.55],[2.8,-.4,-1.6],{slide:true});
+  const mount=group(cyl(.42,.18,M.rubber()),cyl(.18,.22,M.metal()));part('absorber_mount',mount,[0,2.0,0],[0,3.3,-1.2]);
+  const seat=group(ring(.5,.07,M.dark()),cyl(.55,.08,M.dark()));part('spring_seat',seat,[0,-.25,0],[-2.0,-.8,1.4]);
+  const bush=group(cyl(.22,.35,M.rubber(),'z'),cyl(.08,.38,M.metal(),'z'));part('bushing_control_arm',bush,[-.9,-.95,.2],[-3,-1.2,1.3]);
+},
+brake(){
+  const disc=new THREE.Group();const rotor=cyl(1.5,.16,M.alum(),'z',48);disc.add(rotor);for(let i=0;i<8;i++){const h=cyl(.08,.18,M.black(),'z',12);const a=i/8*Math.PI*2;h.position.set(Math.cos(a)*.48,Math.sin(a)*.48,0);disc.add(h);}part('brake_disc',disc,[0,.3,0],[0,0,-2.3],{spinZ:2.4});
+  const cal=group(box(.75,1.1,.6,M.red()),cyl(.3,.5,M.dark(),'z'));cal.children[1].position.z=.15;part('brake_caliper',cal,[1.05,.65,.12],[2.8,1.5,1.7],{clamp:true});
+  const pads=group(box(.45,.85,.12,M.amber()),box(.45,.85,.12,M.amber()));pads.children[0].position.z=-.18;pads.children[1].position.z=.18;part('brake_pad',pads,[.85,.6,0],[2.0,.4,-1.5],{clamp:true});
+  const piston=group(cyl(.27,.35,M.metal(),'z'));part('brake_piston',piston,[1.1,.65,.22],[3.4,.4,1.8],{clamp:true});
+  const hose=group(tube([[0,0,0],[.4,.35,.1],[.7,.8,.15],[.9,1.3,.2]],.055,M.rubber()));part('brake_hose',hose,[1.15,.85,.3],[3.2,2.6,1.4],{pulse:true});
+  const mc=group(cyl(.25,1.3,M.metal(),'x'),box(.7,.55,.6,M.white()));mc.children[1].position.set(-.35,.45,0);part('master_cylinder',mc,[-2.1,1.15,-.4],[-3,2,0],{pulse:true});
+},
+wheel(){
+  const tire=ring(1.55,.36,M.rubber(),48);tire.rotation.y=Math.PI/2;const rim1=ring(.86,.14,M.alum());rim1.rotation.y=Math.PI/2;const wheel=group(tire,rim1);part('wheel_tire',wheel,[0,.2,0],[0,0,-3],{spinX:1.5});
+  const hub=group(cyl(.52,.65,M.metal(),'x'),cyl(.23,.8,M.dark(),'x'));part('wheel_hub',hub,[0,.2,0],[0,0,-1.6],{spinX:1.5});
+  const br=ring(.48,.12,M.amber());br.rotation.y=Math.PI/2;part('wheel_bearing',group(br),[0,.2,0],[0,0,1.6],{spinX:1.5});
+  const ds=group(cyl(.16,3.4,M.metal(),'x'));part('drive_shaft',ds,[-1.4,.2,0],[-3,0,0],{spinX:1.5});
+  const cv=group(mesh(new THREE.SphereGeometry(.42,24,16),M.dark()),ring(.34,.06,M.metal()));cv.children[1].rotation.y=Math.PI/2;part('cv_joint',cv,[-.55,.2,0],[-2,1.8,0],{spinX:1.5});
+  const nuts=new THREE.Group();for(let i=0;i<5;i++){const n=cyl(.11,.18,M.metal(),'x',6);const a=i/5*Math.PI*2;n.position.set(.5,Math.cos(a)*.36,Math.sin(a)*.36);nuts.add(n);}part('wheel_nut',nuts,[0,.2,0],[2.3,0,0]);
+},
+clutch(){
+  const fw=group(cyl(1.55,.28,M.dark(),'z',48));part('flywheel_ref',fw,[0,.25,-.65],[0,0,-2.4],{spinZ:1.6});
+  const disc=group(cyl(1.25,.14,M.amber(),'z',48),cyl(.35,.25,M.metal(),'z'));part('clutch_disc',disc,[0,.25,0],[0,0,-1.0],{spinZ:1.6});
+  const cover=group(cyl(1.45,.42,M.alum(),'z',48),ring(.75,.12,M.dark()));part('clutch_cover',cover,[0,.25,.55],[0,0,1.4],{spinZ:1.6});
+  const rel=ring(.42,.14,M.metal());part('release_bearing',group(rel),[0,.25,1.25],[0,0,2.8],{pulse:true});
+  const master=group(cyl(.2,1.0,M.metal(),'x'));part('clutch_master',master,[-2.4,1.3,-.4],[-3,2,0],{pulse:true});
+  const slave=group(cyl(.19,.8,M.metal(),'x'));part('clutch_slave',slave,[1.9,.7,1.1],[3,1,1.5],{slide:true});
+},
+transmission(){
+  const housing=group(box(2.8,1.6,2.3,M.dark()),cyl(1.0,.85,M.metal(),'z'));housing.children[1].position.z=1.3;part('atf',housing,[0,.4,0],[0,0,-2.5],{pulse:true});
+  const filter=group(box(1.5,.18,.9,M.plastic()),tube([[-.6,0,0],[-.9,.3,0],[-1,.6,0]],.08,M.black()));part('at_filter',filter,[0,-.7,.1],[-2.6,-1.6,0],{pulse:true});
+  const hose=group(tube([[0,0,0],[.6,.25,.2],[1.1,.7,.25],[1.8,.9,.35]],.07,M.rubber()));part('trans_cooler_hose',hose,[.8,.7,.5],[3,1.8,1.2],{pulse:true});
+  const seal=ring(.55,.08,M.rubber());seal.rotation.y=Math.PI/2;part('trans_oil_seal',group(seal),[-1.45,.35,0],[-2.5,.1,0]);
+  const cseal=ring(.75,.07,M.rubber());part('converter_seal',group(cseal),[0,.4,1.52],[0,1.9,2.7]);
+},
+electrical(){
+  const alt=new THREE.Group();const body=cyl(.75,1.05,M.alum(),'x',32);alt.add(body);for(let i=0;i<8;i++){const vent=box(.08,.55,.12,M.dark());const a=i/8*Math.PI*2;vent.position.set(.54,Math.cos(a)*.45,Math.sin(a)*.45);vent.rotation.x=a;alt.add(vent);}part('alternator',alt,[0,.6,0],[-2.8,.8,0],{spinX:2.2});
+  const pul=gear(.38,.2,M.dark(),14);pul.rotation.y=Math.PI/2;part('alternator_pulley',pul,[.65,.6,0],[2.3,.8,0],{spinX:2.4});
+  const fb=new THREE.Group();for(let i=0;i<7;i++){const f=box(.18,.5,.12,i%2?M.red():M.amber());f.position.set((i-3)*.23,0,0);fb.add(f);}part('fuse',fb,[0,-.65,0],[-2.7,-1.7,0],{pulse:true});
+  const rl=new THREE.Group();for(let i=0;i<4;i++){const r=box(.45,.55,.45,M.black());r.position.set((i-1.5)*.55,0,0);rl.add(r);}part('relay',rl,[0,-.15,-1.0],[2.7,-1.0,-1.6],{pulse:true});
+  const lamp=group(box(1.2,.65,.4,M.plastic()),mesh(new THREE.SphereGeometry(.36,24,14),mat(0xc8ecff,.05,.08,.72)));lamp.children[1].position.z=.25;part('headlight',lamp,[0,1.9,-.5],[2.6,2.6,-1],{pulse:true});
+  const sensor=group(cyl(.11,.55,M.metal()),box(.25,.22,.22,M.black()));part('speed_sensor',sensor,[-1.8,.3,-.7],[-3,0,-1.4],{pulse:true});
+  const wm=group(cyl(.35,.7,M.dark(),'x'),cyl(.09,.5,M.metal(),'x'));part('wiper_motor',wm,[1.8,.25,-.7],[3,0,-1.4],{spinX:1.8});
+},
+cooling(){
+  const rad=new THREE.Group();const frame=box(2.5,2.0,.22,M.dark());rad.add(frame);for(let i=-8;i<=8;i++){const fin=box(.035,1.75,.05,M.alum());fin.position.x=i*.13;fin.position.z=.14;rad.add(fin);}part('radiator',rad,[0,.55,-.7],[0,2.5,-2],{pulse:true});
+  const wp=group(cyl(.68,.45,M.alum(),'z'),gear(.48,.18,M.dark(),12));wp.children[1].position.z=.28;part('water_pump',wp,[1.4,.55,.45],[3,1.4,0],{spinZ:2.0});
+  const th=group(cyl(.35,.28,M.amber(),'x'),cyl(.18,.5,M.metal(),'x'));part('thermostat',th,[-1.5,.7,.4],[-3,1.6,0],{pulse:true});
+  const hose=group(tube([[-1.2,0,0],[-.7,.4,.2],[.2,.7,.15],[1.1,.35,0]],.1,M.rubber()));part('radiator_hose',hose,[0,1.15,.3],[0,2.8,1.8],{pulse:true});
+  const pul1=gear(.7,.18,M.dark(),16);const pul2=gear(.48,.18,M.dark(),14);const pul3=gear(.42,.18,M.dark(),12);pul1.position.set(-.7,-.8,.6);pul2.position.set(.7,-.55,.6);pul3.position.set(0,.25,.6);const belt=tube([[-1.25,-.85,.6],[-.8,.05,.6],[0,.7,.6],[.9,.1,.6],[1.2,-.65,.6],[0,-1.2,.6]],.055,M.rubber(),true);const beltG=group(belt);part('fan_belt',beltG,[0,0,0],[0,-2.5,2.5],{pulse:true});part('idler_pulley',group(pul3),[0,0,0],[2.3,2.0,1.5],{spinZ:2.5});part('belt_tensioner',group(box(.25,.85,.2,M.metal()),pul2),[0,0,0],[-2.5,-1.5,1.6],{spinZ:2.1});
+  const res=group(box(.8,1.1,.6,mat(0xaedff0,.05,.22,.36)),cyl(.18,.12,M.dark()));res.children[1].position.y=.62;part('reserve_tank',res,[2.1,1.6,-.5],[3,2.8,-1]);
+},
+ac(){
+  const comp=group(cyl(.72,1.0,M.alum(),'x',32),gear(.46,.18,M.dark(),14));comp.children[1].rotation.y=Math.PI/2;comp.children[1].position.x=.58;part('ac_compressor',comp,[-1.4,.2,.4],[-3,-.5,0],{spinX:2.0});
+  const cond=new THREE.Group();cond.add(box(2.2,1.8,.16,M.dark()));for(let i=-7;i<=7;i++){const fin=box(.03,1.6,.04,M.alum());fin.position.x=i*.13;fin.position.z=.11;cond.add(fin);}part('condenser',cond,[1.1,.65,-.8],[3,2.1,-1.5],{pulse:true});
+  const valve=group(box(.45,.4,.4,M.metal()),cyl(.08,.5,M.metal(),'x'));part('expansion_valve',valve,[.35,.45,.7],[2.3,.5,2.5],{pulse:true});
+  const cf=group(box(1.5,.75,.12,M.white()));for(let i=-5;i<=5;i++){const line=box(.03,.62,.03,M.dark());line.position.x=i*.12;line.position.z=.08;cf.add(line);}part('cabin_filter',cf,[0,1.8,.4],[-1.2,3,2],{pulse:true});
+},
+intake(){
+  const air=group(box(1.8,1.1,1.5,M.black()),box(1.45,.15,1.2,M.dark()));air.children[1].position.y=.62;part('air_cleaner',air,[-1.1,.5,0],[-3,.5,0],{pulse:true});
+  const filter=group(box(1.4,.12,1.1,M.amber()));for(let i=-5;i<=5;i++){const pleat=box(.025,.2,1.0,M.white());pleat.position.x=i*.11;filter.add(pleat);}part('air_filter',filter,[-1.1,.5,0],[-2.8,2.1,0],{pulse:true});
+  const hose=group(tube([[-.2,0,0],[.4,.25,.1],[1,.15,.15],[1.6,.4,.2]],.22,M.rubber()));part('intake_hose',hose,[0,.45,0],[2.8,1.0,0],{pulse:true});
+  const ff=group(cyl(.32,.95,M.metal()));part('fuel_filter',ff,[1.2,-.6,-.7],[2.8,-1.6,-1],{pulse:true});
+  const of=group(cyl(.38,.8,M.dark()));part('oil_filter',of,[.15,-.75,-.7],[.2,-2.0,-1.2],{pulse:true});
+  const pcv=group(tube([[0,0,0],[.3,.35,.1],[.7,.55,.2],[1.0,.7,.1]],.07,M.rubber()));part('pcv_hose',pcv,[-.2,1.3,.2],[1,2.8,1.5],{pulse:true});
+},
+body(){
+  const door=group(box(3.2,2.4,.18,M.dark()),box(1.7,1.0,.06,mat(0x6ab6d6,.05,.08,.35)));door.children[1].position.set(.3,.55,.13);root.add(door);door.position.set(0,.35,-.4);door.userData.decor=true;
+  const handle=group(box(.75,.16,.16,M.metal()));part('door_handle',handle,[.8,.45,-.16],[2.8,.8,0],{slide:true});
+  const cable=group(tube([[0,0,0],[-.5,-.2,0],[-.9,-.5,.05],[-1.2,-.6,.1]],.04,M.black()));part('door_cable',cable,[.55,.25,-.1],[-2,-1.3,0],{pulse:true});
+  const motor=group(cyl(.35,.7,M.dark(),'x'),cyl(.08,.45,M.metal(),'x'));part('wiper_motor',motor,[-1.8,1.75,.2],[-3,2.2,1],{spinX:2.2});
+  const link=group(cyl(.05,2.2,M.metal(),'x'),cyl(.05,1.4,M.metal(),'x'));link.children[1].rotation.z=.7;link.children[1].position.x=.7;part('wiper_link',link,[0,1.75,.2],[0,2.7,1.4],{wiper:true});
+  const blade=group(box(2.2,.08,.08,M.black()),box(.08,1.3,.08,M.metal()));blade.children[1].position.y=-.6;blade.children[1].rotation.z=.25;part('wiper_blade',blade,[.8,2.0,.3],[2.8,3,1.5],{wiper:true});
+  const noz=group(cyl(.08,.2,M.black()),cyl(.025,.25,M.cyan()));part('washer_nozzle',noz,[1.2,1.2,.1],[2.5,1.5,1.6],{pulse:true});
+  const ws=group(tube([[-1.5,-1,0],[-1.5,1,0],[1.5,1,0],[1.5,-1,0]],.04,M.rubber(),false));part('weatherstrip',ws,[0,.35,-.25],[0,0,-2.2]);
+  const stay=group(cyl(.08,1.6,M.metal()),cyl(.14,1.0,M.dark()));stay.rotation.z=-.45;part('backdoor_stay',stay,[-1.3,.4,.4],[-2.8,.2,1.5],{slide:true});
+},
+hardware(){
+  part('bolt',boltVisual(1.4),[-1.7,.8,0],[-3,1.8,0],{spinY:1.0});part('stud',group(cyl(.13,1.6,M.metal())),[-.7,.6,0],[-1.4,2.3,0],{spinY:1.0});
+  const n=group(cyl(.42,.3,M.metal(),'y',6),cyl(.2,.34,M.black()));part('nut',n,[.4,.6,0],[1.2,2.0,0],{spinY:1.0});
+  const or=ring(.65,.09,M.rubber());or.rotation.x=Math.PI/2;part('o_ring',group(or),[1.65,.65,0],[3,1.8,0],{pulse:true});
+  const os=group(ring(.55,.12,M.rubber()),ring(.35,.05,M.metal()));part('oil_seal',os,[1.2,-.6,0],[2.8,-1.8,0],{spinZ:.8});
+  const stop=group(cyl(.35,.55,M.rubber()),box(.5,.18,.5,M.dark()));part('stopper',stop,[-.1,-.7,0],[0,-2.0,0],{pulse:true});
+  const rp=group(box(.8,.35,.6,M.rubber()));part('rubber_part',rp,[-1.15,-.65,0],[-2.8,-1.7,0],{pulse:true});
+  const wr=group(cyl(.52,.08,M.metal()),cyl(.28,.1,M.dark()));part('washer_ref',wr,[.45,-.7,.7],[1.5,-1.8,1.5]);
+},
+fluids(){
+  const makeBottle=(color)=>group(cyl(.45,1.2,M.fluid(color)),cyl(.2,.22,M.dark()));
+  part('engine_oil_ref',makeBottle(0xa36a18),[-1.8,.4,0],[-3,1,0],{pulse:true});part('brake_fluid_ref',makeBottle(0xe0d188),[-.65,.4,0],[-1,2,0],{pulse:true});part('coolant_ref',makeBottle(0x37a86c),[.55,.4,0],[1,2,0],{pulse:true});part('atf_ref',makeBottle(0xb54848),[1.75,.4,0],[3,1,0],{pulse:true});
+  const grease=group(cyl(.6,.5,M.dark()),cyl(.54,.08,M.amber()));grease.children[1].position.y=.29;part('grease',grease,[-.55,-.9,.2],[-1.3,-2,0],{spinY:.5});
+  const cap=group(cyl(.42,.28,M.black(), 'y',28));for(let i=0;i<12;i++){const rib=box(.05,.3,.08,M.dark());const a=i/12*Math.PI*2;rib.position.set(Math.cos(a)*.42,0,Math.sin(a)*.42);rib.rotation.y=-a;cap.add(rib);}part('oil_cap',cap,[.75,-.8,.2],[1.7,-2,0],{spinY:.7});
+},
+admin(){
+  const ids=['car_care','items','misc','services','work'];const colors=[0x327751,0x2d6f9f,0x7a5b26,0x6b4e8e,0x8a3f45];ids.forEach((id,i)=>{const c=cardVisual(1.35,.85,colors[i]);const x=(i-2)*1.35;part(id,c,[x,.55+(i%2)*.45,0],[(i-2)*.7,(i%2?1.4:-.8),1.5+(i%2)],{float:true});});
+}
+};
+
+function loadSystem(id,initial=false){
+  if(!systemsById[id])return;currentSystem=id;clearRoot();document.querySelectorAll('.sys').forEach(el=>el.classList.toggle('active',el.dataset.id===id));
+  const s=systemsById[id];document.getElementById('hud-title').textContent=s.name.toUpperCase();document.getElementById('hud-sub').textContent=id==='sys-14'?'ADMINISTRATIVE KNOWLEDGE MAP':'INTERACTIVE 3D ASSEMBLY';document.getElementById('system-note').textContent=s.desc+(id==='sys-14'?' Kategori ini divisualkan sebagai peta konsep, bukan assembly mekanis.':'');
+  const factory=FACTORIES[s.factory];if(factory)factory();targetExplode=0;explode=0;updateExplodeUI();activePart=s.parts[0]||null;selectPart(activePart,false);focusAssembly(initial?false:true);buildLabels();rebuildConnections();if(how)renderFlow();toast(s.name+' dimuat');
+}
+function clearRoot(){
+  while(root.children.length){const o=root.children.pop();o.traverse?.(c=>{if(c.geometry)c.geometry.dispose();if(c.material){if(Array.isArray(c.material))c.material.forEach(m=>m.dispose());else c.material.dispose();}});}registered=[];clearConnections();labelLayer.innerHTML='';flowParticles.forEach(x=>scene.remove(x));flowParticles=[];
+}
+function focusAssembly(animated=true){const box3=new THREE.Box3().setFromObject(root);if(box3.isEmpty())return;const c=new THREE.Vector3(),sz=new THREE.Vector3();box3.getCenter(c);box3.getSize(sz);const max=Math.max(sz.x,sz.y,sz.z);lookGoal=c;camGoal=new THREE.Vector3(c.x+max*1.25,c.y+max*.8,c.z+max*1.5);if(!animated){camera.position.copy(camGoal);controls.target.copy(lookGoal);camGoal=null;lookGoal=null;}}
+function getPartGroup(id){return registered.find(g=>g.userData.id===id)}
+function getCenter(id){const g=getPartGroup(id);if(!g)return new THREE.Vector3();const b=new THREE.Box3().setFromObject(g),c=new THREE.Vector3();b.getCenter(c);return c;}
+
+function selectPart(id,focus=true){const d=partsById[id];if(!d)return;if(d.system!==currentSystem){loadSystem(d.system);}
+  activePart=id;document.getElementById('part-title').textContent=d.name;document.getElementById('part-system').textContent=systemsById[d.system].name;document.getElementById('part-pos').textContent=d.pos;document.getElementById('part-func').textContent=d.func;document.getElementById('part-work').textContent=d.work;document.getElementById('part-note').textContent=d.note||'Gunakan model untuk memahami posisi relatif dan hubungan komponen.';
+  const rel=document.getElementById('related');rel.innerHTML='';(d.related||[]).forEach(rid=>{const rd=partsById[rid];if(!rd)return;const el=document.createElement('div');el.className='rel';el.innerHTML='<div class="rel-main"><div class="rel-name">'+escapeHtml(rd.name)+'</div><div class="rel-meta">'+escapeHtml(systemsById[rd.system].name)+'</div></div><div class="rel-go">FOKUS 3D ›</div>';el.addEventListener('click',()=>selectPart(rid,true));rel.appendChild(el);});if(!rel.children.length)rel.innerHTML='<div style="font-size:10px;color:var(--muted)">Tidak ada hubungan langsung dalam demo ini.</div>';
+  const sy=document.getElementById('symptoms');sy.innerHTML='';(d.symptoms||[]).forEach(s=>{const e=document.createElement('div');e.className='sym';e.textContent='• '+s;sy.appendChild(e);});if(!sy.children.length)sy.innerHTML='<div style="font-size:10px;color:var(--muted)">Tidak berlaku sebagai komponen mekanis.</div>';
+  document.getElementById('status-main').textContent=systemsById[d.system].name.toUpperCase()+' • '+d.name.toUpperCase();setVisualState();rebuildConnections();if(focus&&getPartGroup(id)){const c=getCenter(id);lookGoal=c;camGoal=new THREE.Vector3(c.x+3.2,c.y+2.0,c.z+4.2);}updateLabels();
+}
+
+function setVisualState(){const related=new Set((partsById[activePart]?.related||[]));registered.forEach(g=>{const id=g.userData.id,active=id===activePart,rel=related.has(id);const show=!isolate||active||rel;g.visible=show;g.traverse(o=>{if(!o.isMesh||!o.material)return;const m=o.material,base=m.userData.baseColor||new THREE.Color(0xffffff);m.color.copy(base);m.emissive?.set(0x000000);m.emissiveIntensity=0;m.transparent=xray||m.userData.baseOpacity<1;let op=m.userData.baseOpacity??1;if(xray&&!active)op=rel?.44:.15;if(active){op=1;m.emissive?.set(0x196744);m.emissiveIntensity=.75;}else if(rel&&connections){op=Math.max(op,.78);m.emissive?.set(0x0b5f8a);m.emissiveIntensity=.4;}m.opacity=op;m.depthWrite=op>.35;});});document.getElementById('mini-mode').textContent=isolate?'Isolate':xray?'X-Ray':how?'How It Works':'Normal';}
+
+function clearConnections(){if(!connGroup)return;while(connGroup.children.length){const o=connGroup.children.pop();if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose();}}
+function rebuildConnections(){if(!connGroup)return;clearConnections();if(!connections||!activePart)return;const d=partsById[activePart];if(!d)return;(d.related||[]).forEach(rid=>{if(!getPartGroup(rid))return;const a=getCenter(activePart),b=getCenter(rid);const geo=new THREE.BufferGeometry().setFromPoints([a,b]);const line=new THREE.Line(geo,new THREE.LineDashedMaterial({color:0x38bdf8,dashSize:.22,gapSize:.12,transparent:true,opacity:.8}));line.computeLineDistances();line.userData={a:activePart,b:rid};connGroup.add(line);const bead=mesh(new THREE.SphereGeometry(.055,10,8),new THREE.MeshBasicMaterial({color:0x7dd3fc}));bead.userData={bead:true,a:activePart,b:rid,phase:Math.random()*6};connGroup.add(bead);});}
+function updateConnections(t){if(!connections)return;connGroup.children.forEach(o=>{if(o.userData.bead){const a=getCenter(o.userData.a),b=getCenter(o.userData.b),f=(Math.sin(t*2.8+o.userData.phase)+1)/2;o.position.lerpVectors(a,b,f);}else if(o.isLine){const a=getCenter(o.userData.a),b=getCenter(o.userData.b),p=o.geometry.attributes.position;p.setXYZ(0,a.x,a.y,a.z);p.setXYZ(1,b.x,b.y,b.z);p.needsUpdate=true;o.computeLineDistances();}})}
+
+function buildLabels(){labelLayer.innerHTML='';registered.forEach(g=>{const d=partsById[g.userData.id];if(!d)return;const e=document.createElement('div');e.className='part-label';e.dataset.id=g.userData.id;e.textContent=d.name;labelLayer.appendChild(e);});updateLabels();}
+function updateLabels(){const activeSet=new Set([activePart,...(partsById[activePart]?.related||[])]);labelLayer.querySelectorAll('.part-label').forEach(el=>{const id=el.dataset.id,g=getPartGroup(id);if(!g||!g.visible||!labels){el.classList.remove('show');return;}const c=getCenter(id),v=c.clone().project(camera);const x=(v.x*.5+.5)*canvasWrap.clientWidth,y=(-v.y*.5+.5)*canvasWrap.clientHeight;el.style.left=x+'px';el.style.top=y+'px';el.classList.toggle('show',labels&&(activeSet.has(id)||currentSystem==='sys-14'));});}
+
+function renderSidebar(){const ul=document.getElementById('system-list');ul.innerHTML='';SYSTEMS.forEach(s=>{const li=document.createElement('li');li.className='sys'+(s.id===currentSystem?' active':'');li.dataset.id=s.id;li.innerHTML='<span class="sys-num">'+s.n+'</span><span class="sys-name">'+escapeHtml(s.name)+'</span><span class="sys-count">'+s.parts.length+'</span>';li.addEventListener('click',()=>{loadSystem(s.id);document.getElementById('left-panel').classList.remove('mobile-open');});ul.appendChild(li);});}
+function setupSearch(){const input=document.getElementById('search'),box=document.getElementById('search-results');let sel=-1,items=[];function render(q){q=q.trim();if(!q){box.classList.remove('open');box.innerHTML='';items=[];return;}const qq=q.toLowerCase();items=P.filter(x=>x.name.toLowerCase().includes(qq)||systemsById[x.system].name.toLowerCase().includes(qq)).slice(0,24);box.innerHTML='';sel=-1;if(!items.length){box.innerHTML='<div class="no-result">Tidak ada hasil untuk “'+escapeHtml(q)+'”.</div>';}items.forEach((x,i)=>{const el=document.createElement('div');el.className='result';const re=new RegExp('('+escapeRegExp(q)+')','ig');el.innerHTML='<div class="result-name">'+escapeHtml(x.name).replace(re,'<mark>$1</mark>')+'</div><div class="result-meta">'+escapeHtml(systemsById[x.system].name)+'</div>';el.addEventListener('click',()=>{selectPart(x.id,true);input.value=x.name;box.classList.remove('open');});box.appendChild(el);});box.classList.add('open');}
+input.addEventListener('input',e=>render(e.target.value));input.addEventListener('focus',()=>{if(input.value.trim())render(input.value)});document.addEventListener('click',e=>{if(!document.getElementById('search-wrap').contains(e.target))box.classList.remove('open')});window.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();input.focus();input.select();}if(!box.classList.contains('open'))return;const nodes=[...box.querySelectorAll('.result')];if(e.key==='ArrowDown'&&nodes.length){e.preventDefault();sel=(sel+1)%nodes.length;}else if(e.key==='ArrowUp'&&nodes.length){e.preventDefault();sel=(sel-1+nodes.length)%nodes.length;}else if(e.key==='Enter'&&sel>=0&&items[sel]){e.preventDefault();selectPart(items[sel].id,true);input.value=items[sel].name;box.classList.remove('open');return;}else if(e.key==='Escape'){box.classList.remove('open');return;}nodes.forEach((n,i)=>n.classList.toggle('sel',i===sel));nodes[sel]?.scrollIntoView({block:'nearest'});});}
+
+function setupUI(){
+  const slider=document.getElementById('explode-slider');slider.addEventListener('input',e=>{targetExplode=+e.target.value/100;updateExplodeUI();});
+  on('btn-explode',()=>{targetExplode=1;toggleActive('btn-explode',true);toggleActive('btn-assemble',false);toast('Exploded view');});
+  on('btn-assemble',()=>{targetExplode=0;toggleActive('btn-explode',false);toggleActive('btn-assemble',true);toast('Assembly view');});
+  on('btn-reset',()=>{targetExplode=0;autoRotate=false;xray=false;isolate=false;how=false;labels=false;connections=true;controls.autoRotate=false;['btn-auto','btn-xray','btn-isolate','btn-how','btn-label','btn-explode'].forEach(id=>toggleActive(id,false));toggleActive('btn-assemble',true);toggleActive('btn-conn',true);document.getElementById('flowbox').classList.remove('show');setVisualState();focusAssembly();updateExplodeUI();toast('Semua mode di-reset');});
+  on('btn-auto',()=>{autoRotate=!autoRotate;controls.autoRotate=autoRotate;toggleActive('btn-auto',autoRotate);toast(autoRotate?'Auto rotate aktif':'Auto rotate mati');});
+  on('btn-isolate',()=>{isolate=!isolate;toggleActive('btn-isolate',isolate);setVisualState();rebuildConnections();toast(isolate?'Isolate aktif':'Isolate mati');});
+  on('btn-xray',()=>{xray=!xray;toggleActive('btn-xray',xray);setVisualState();toast(xray?'X-Ray aktif':'X-Ray mati');});
+  on('btn-conn',()=>{connections=!connections;toggleActive('btn-conn',connections);setVisualState();rebuildConnections();toast(connections?'Connection aktif':'Connection mati');});
+  on('btn-how',()=>{how=!how;toggleActive('btn-how',how);document.getElementById('flowbox').classList.toggle('show',how);renderFlow();setVisualState();toast(how?'Animasi cara kerja aktif':'Animasi dihentikan');});
+  on('btn-label',()=>{labels=!labels;toggleActive('btn-label',labels);updateLabels();toast(labels?'Label aktif':'Label mati');});
+  on('btn-reset-cam',()=>{focusAssembly();toast('Kamera di-reset');});
+  on('btn-menu',()=>document.getElementById('left-panel').classList.toggle('mobile-open'));on('btn-info',()=>document.getElementById('right-panel').classList.toggle('mobile-open'));
+  document.querySelectorAll('.cam-btn').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.cam-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');cameraPreset(b.dataset.view);}));
+}
+function on(id,fn){document.getElementById(id).addEventListener('click',fn)}function toggleActive(id,v){document.getElementById(id).classList.toggle('active',!!v)}
+function renderFlow(){const s=systemsById[currentSystem],f=document.getElementById('flow');f.innerHTML='';s.flow.forEach((x,i)=>{const e=document.createElement('span');e.textContent=x;f.appendChild(e);if(i<s.flow.length-1){const a=document.createElement('b');a.textContent='→';f.appendChild(a);}})}
+function cameraPreset(v){const box3=new THREE.Box3().setFromObject(root),c=new THREE.Vector3(),sz=new THREE.Vector3();box3.getCenter(c);box3.getSize(sz);const m=Math.max(sz.x,sz.y,sz.z,2.5);lookGoal=c;if(v==='front')camGoal=new THREE.Vector3(c.x,c.y,c.z+m*1.8);else if(v==='top')camGoal=new THREE.Vector3(c.x,c.y+m*1.8,c.z+.01);else if(v==='side')camGoal=new THREE.Vector3(c.x+m*1.8,c.y,c.z);else camGoal=new THREE.Vector3(c.x+m*1.3,c.y+m*.8,c.z+m*1.5);}
+function updateExplodeUI(){const val=Math.round(targetExplode*100),r=document.getElementById('explode-slider');r.value=val;r.style.background='linear-gradient(90deg,var(--green2) '+val+'%,rgba(255,255,255,.1) '+val+'%)';document.getElementById('explode-val').textContent=val+'%';document.getElementById('mini-exp').textContent=val+'%';}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),1300)}
+
+function onPointerMove(e){if(pointerDown&&Math.hypot(e.clientX-pointerDown.x,e.clientY-pointerDown.y)>5)dragged=true;const rect=renderer.domElement.getBoundingClientRect();mouse.x=((e.clientX-rect.left)/rect.width)*2-1;mouse.y=-((e.clientY-rect.top)/rect.height)*2+1;raycaster.setFromCamera(mouse,camera);const hits=raycaster.intersectObjects(registered,true);hoverId=null;for(const h of hits){let o=h.object;while(o&&o!==root&&!o.userData.id)o=o.parent;if(o&&o.userData.id&&o.visible){hoverId=o.userData.id;break;}}renderer.domElement.style.cursor=hoverId?'pointer':'grab';if(hoverId&&!dragged){const d=partsById[hoverId];tooltip.textContent=d.name;tooltip.style.left=(e.clientX-rect.left+14)+'px';tooltip.style.top=(e.clientY-rect.top+14)+'px';tooltip.classList.add('show');}else tooltip.classList.remove('show');}
+function resize(){if(!renderer)return;const w=canvasWrap.clientWidth,h=canvasWrap.clientHeight;if(!w||!h)return;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false);renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.7));}
+
+function animateParts(t,dt){registered.forEach(g=>{const a=g.userData.anim||{},base=g.userData.base,phase=g.userData.phase||0;if(!how)return;
+    if(a.spinX)g.rotation.x+=a.spinX*dt;if(a.spinY)g.rotation.y+=a.spinY*dt;if(a.spinZ)g.rotation.z+=a.spinZ*dt;
+    if(a.piston){g.position.y+=Math.sin(t*3+phase)*.12;}
+    if(a.spring){g.scale.y=1+Math.sin(t*3)*.05;}
+    if(a.bob){g.rotation.z=Math.sin(t*2.4)*.03;}
+    if(a.swing){g.rotation.z=Math.sin(t*2)*.08;}
+    if(a.slide){g.rotation.y=Math.sin(t*1.6)*.05;}
+    if(a.clamp){g.scale.z=1+Math.sin(t*3)*.035;}
+    if(a.wiper){g.rotation.z=Math.sin(t*2.2)*.35;}
+    if(a.float){g.rotation.y=Math.sin(t*.9+phase)*.12;g.position.y=base.y+Math.sin(t*1.2+phase)*.08+g.userData.delta.y*explode;}
+    if(a.spark){const flash=Math.sin(t*6+phase)>.88;g.traverse(o=>{if(o.isMesh&&o.material.emissive){if(flash){o.material.emissive.set(0x44d7ff);o.material.emissiveIntensity=1.2;}else if(g.userData.id!==activePart){o.material.emissive.set(0x000000);o.material.emissiveIntensity=0;}}});}
+    if(a.pulse){const k=.12+.15*(Math.sin(t*3+phase)+1)/2;g.traverse(o=>{if(o.isMesh&&o.material.emissiveIntensity!==undefined&&g.userData.id!==activePart){o.material.emissiveIntensity=Math.max(o.material.emissiveIntensity,k);}});}
+  });}
+
+function loop(ts){requestAnimationFrame(loop);const t=ts/1000,dt=Math.min(.05,lastTime?(ts-lastTime)/1000:.016);lastTime=ts;animationPhase=t;
+  explode=THREE.MathUtils.lerp(explode,targetExplode,1-Math.exp(-7*dt));registered.forEach(g=>{if(g.userData.anim?.float&&how)return;const b=g.userData.base,d=g.userData.delta;g.position.set(b.x+d.x*explode,b.y+d.y*explode,b.z+d.z*explode);});
+  if(camGoal&&lookGoal){camera.position.lerp(camGoal,1-Math.exp(-6*dt));controls.target.lerp(lookGoal,1-Math.exp(-6*dt));if(camera.position.distanceTo(camGoal)<.03&&controls.target.distanceTo(lookGoal)<.03){camera.position.copy(camGoal);controls.target.copy(lookGoal);camGoal=null;lookGoal=null;}}
+  animateParts(t,dt);updateConnections(t);controls.update();updateLabels();renderer.render(scene,camera);
+}
+
+function escapeHtml(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}function escapeRegExp(s){return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}
+
+window.addEventListener('load',start);
+})();
+</script>
+</body>
+</html>
